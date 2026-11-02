@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<title>ChatGPT 回答操作栏</title>
+<style>
+    :root {
+        /* 与 ChatGPT 原生操作行一致：行高 34dp、按钮 34dp、图标 18dp、
+           相邻按钮间隔 2dp（中心距 36dp）。 */
+        --bar-h: 34px;
+        --cell: 34px;
+        --cell-gap: 2px;
+        --icon: 18px;
+        --icon-color: #6B6B6F;
+        --icon-hover: #3F3F44;
+        --icon-active: #3262E6;
+        --press-bg: #F0F0F2;
+        --active-bg: #EDF1FD;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+        width: 100%;
+        height: var(--bar-h);
+        background: transparent;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: manipulation;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        height: var(--bar-h);
+        padding: 0;
+    }
+
+    .action {
+        position: relative;
+        flex: 0 0 var(--cell);
+        width: var(--cell);
+        height: var(--bar-h);
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--icon-color);
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: color .16s ease, transform .12s ease;
+    }
+
+    .action + .action { margin-left: var(--cell-gap); }
+
+    /* 点按反馈只覆盖 30dp 的圆形区域，视觉图标仍保持 18dp。 */
+    .action::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 30px;
+        height: 30px;
+        margin: -15px 0 0 -15px;
+        border-radius: 50%;
+        background: transparent;
+        transition: background-color .16s ease;
+        pointer-events: none;
+    }
+
+    .icon {
+        display: block;
+        position: relative;
+        z-index: 1;
+        width: var(--icon);
+        height: var(--icon);
+        margin: 0 auto;
+        overflow: visible;
+        pointer-events: none;
+    }
+
+    .action:active { transform: scale(.94); }
+    .action:active::before { background: var(--press-bg); }
+
+    .action:focus-visible {
+        outline: 2px solid var(--icon-active);
+        outline-offset: 2px;
+    }
+
+    @media (hover: hover) {
+        .action:hover { color: var(--icon-hover); }
+        .action:hover::before { background: var(--press-bg); }
+        .action[aria-pressed="true"]:hover { color: var(--icon-active); }
+        .action[aria-pressed="true"]:hover::before { background: var(--active-bg); }
+    }
+
+    .action[aria-pressed="true"] { color: var(--icon-active); }
+    .action[aria-pressed="true"]::before { background: var(--active-bg); }
+
+    .action--vol.is-speaking .icon {
+        animation: icon-pulse .9s ease-in-out infinite;
+    }
+
+    @keyframes icon-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .55; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .action, .action::before { transition: none; }
+        .action--vol.is-speaking .icon { animation: none; }
+    }
+</style>
+</head>
+<body>
+    <main class="toolbar" id="toolbar" role="toolbar" aria-label="ChatGPT 回答操作栏">
+        <button class="action action--copy" type="button" data-action="copy" aria-label="复制回答" title="复制">
+            <svg class="icon" viewBox="0 0 42 42" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M18,0 L33,0 L33,1 L37,1 L37,2 L38,2 L38,3 L39,3 L39,4 L40,4 L40,5 L41,5 L41,8 L42,8 L42,25 L41,25 L41,28 L40,28 L40,29 L39,29 L39,30 L38,30 L38,31 L36,31 L36,32 L35,32 L35,27 L37,27 L37,25 L38,25 L38,7 L37,7 L37,6 L36,6 L36,5 L34,5 L34,4 L17,4 L17,5 L16,5 L16,6 L15,6 L15,7 L10,7 L10,6 L11,6 L11,5 L12,5 L12,3 L13,3 L13,2 L15,2 L15,1 L18,1 L18,0 Z M9,9 L24,9 L24,10 L27,10 L27,11 L29,11 L29,12 L30,12 L30,13 L31,13 L31,15 L32,15 L32,18 L33,18 L33,33 L32,33 L32,36 L31,36 L31,38 L30,38 L30,39 L29,39 L29,40 L27,40 L27,41 L24,41 L24,42 L9,42 L9,41 L6,41 L6,40 L4,40 L4,39 L3,39 L3,38 L2,38 L2,37 L1,37 L1,34 L0,34 L0,17 L1,17 L1,14 L2,14 L2,13 L3,13 L3,12 L4,12 L4,11 L6,11 L6,10 L9,10 L9,9 Z M9,13 L9,14 L7,14 L7,15 L6,15 L6,16 L5,16 L5,17 L4,17 L4,34 L5,34 L5,35 L6,35 L6,36 L7,36 L7,37 L9,37 L9,38 L23,38 L23,37 L26,37 L26,36 L27,36 L27,35 L28,35 L28,33 L29,33 L29,18 L28,18 L28,16 L27,16 L27,15 L26,15 L26,14 L24,14 L24,13 L9,13 Z"/>
+      </svg>
+        </button>
+
+        <button class="action action--up" type="button" data-action="up" aria-label="赞同" aria-pressed="false" title="赞同">
+            <svg class="icon" viewBox="0 0 42 42" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M24,0 L26,0 L26,1 L28,1 L28,2 L29,2 L29,4 L30,4 L30,11 L29,11 L29,14 L36,14 L36,15 L38,15 L38,16 L39,16 L39,17 L40,17 L40,18 L41,18 L41,22 L42,22 L42,23 L41,23 L41,27 L40,27 L40,30 L39,30 L39,32 L38,32 L38,35 L37,35 L37,37 L36,37 L36,39 L35,39 L35,40 L34,40 L34,41 L31,41 L31,42 L7,42 L7,41 L4,41 L4,40 L3,40 L3,39 L2,39 L2,38 L1,38 L1,34 L0,34 L0,22 L1,22 L1,19 L2,19 L2,18 L3,18 L3,17 L4,17 L4,16 L7,16 L7,15 L12,15 L12,13 L13,13 L13,12 L14,12 L14,11 L15,11 L15,10 L16,10 L16,8 L17,8 L17,7 L18,7 L18,6 L19,6 L19,5 L20,5 L20,3 L21,3 L21,2 L22,2 L22,1 L24,1 L24,0 Z M24,4 L24,6 L23,6 L23,7 L22,7 L22,8 L21,8 L21,10 L20,10 L20,11 L19,11 L19,12 L18,12 L18,13 L17,13 L17,15 L16,15 L16,16 L15,16 L15,17 L14,17 L14,34 L15,34 L15,36 L16,36 L16,37 L17,37 L17,38 L31,38 L31,37 L33,37 L33,35 L34,35 L34,32 L35,32 L35,30 L36,30 L36,27 L37,27 L37,24 L38,24 L38,21 L37,21 L37,19 L36,19 L36,18 L30,18 L30,17 L29,17 L29,18 L28,18 L28,17 L25,17 L25,11 L26,11 L26,4 L24,4 Z M6,19 L6,20 L5,20 L5,21 L4,21 L4,35 L5,35 L5,37 L6,37 L6,38 L12,38 L12,37 L11,37 L11,33 L10,33 L10,19 L6,19 Z"/>
+      </svg>
+        </button>
+
+        <button class="action action--down" type="button" data-action="down" aria-label="不赞同" aria-pressed="false" title="不赞同">
+            <svg class="icon" viewBox="0 0 42 43" preserveAspectRatio="none" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M9,1 L37,1 L37,2 L39,2 L39,3 L40,3 L40,5 L41,5 L41,8 L42,8 L42,20 L41,20 L41,23 L40,23 L40,25 L38,25 L38,26 L37,26 L37,27 L31,27 L31,28 L30,28 L30,29 L29,29 L29,30 L28,30 L28,32 L27,32 L27,33 L26,33 L26,34 L25,34 L25,35 L24,35 L24,37 L23,37 L23,38 L22,38 L22,39 L21,39 L21,40 L20,40 L20,41 L19,41 L19,42 L15,42 L15,41 L14,41 L14,40 L13,40 L13,39 L12,39 L12,32 L13,32 L13,29 L8,29 L8,28 L5,28 L5,27 L3,27 L3,26 L2,26 L2,24 L1,24 L1,21 L0,21 L0,19 L1,19 L1,15 L2,15 L2,13 L3,13 L3,10 L4,10 L4,8 L5,8 L5,5 L6,5 L6,4 L7,4 L7,2 L9,2 L9,1 Z M12,4 L12,5 L10,5 L10,6 L9,6 L9,8 L8,8 L8,10 L7,10 L7,13 L6,13 L6,16 L5,16 L5,18 L4,18 L4,22 L5,22 L5,23 L6,23 L6,24 L7,24 L7,25 L16,25 L16,26 L17,26 L17,31 L16,31 L16,35 L15,35 L15,36 L16,36 L16,38 L18,38 L18,37 L19,37 L19,36 L20,36 L20,34 L21,34 L21,33 L22,33 L22,32 L23,32 L23,30 L24,30 L24,29 L25,29 L25,28 L26,28 L26,27 L27,27 L27,25 L28,25 L28,8 L27,8 L27,6 L25,6 L25,5 L22,5 L22,4 L12,4 Z M30,4 L30,6 L31,6 L31,10 L32,10 L32,23 L36,23 L36,22 L37,22 L37,21 L38,21 L38,7 L37,7 L37,6 L36,6 L36,5 L34,5 L34,4 L30,4 Z"/>
+      </svg>
+        </button>
+
+        <button class="action action--vol" type="button" data-action="vol" aria-label="朗读回答" aria-pressed="false" title="朗读">
+            <svg class="icon" viewBox="0 0 42 42" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M20,1 L23,1 L23,2 L24,2 L24,4 L25,4 L25,38 L24,38 L24,40 L23,40 L23,41 L20,41 L20,40 L18,40 L18,39 L17,39 L17,38 L15,38 L15,37 L14,37 L14,36 L12,36 L12,35 L11,35 L11,34 L9,34 L9,33 L4,33 L4,32 L2,32 L2,31 L1,31 L1,30 L0,30 L0,12 L1,12 L1,10 L4,10 L4,9 L11,9 L11,8 L12,8 L12,7 L13,7 L13,6 L15,6 L15,5 L16,5 L16,4 L17,4 L17,3 L19,3 L19,2 L20,2 L20,1 Z M35,7 L37,7 L37,9 L38,9 L38,10 L39,10 L39,12 L40,12 L40,14 L41,14 L41,17 L42,17 L42,25 L41,25 L41,28 L40,28 L40,30 L39,30 L39,32 L38,32 L38,34 L37,34 L37,35 L35,35 L35,34 L34,34 L34,31 L35,31 L35,30 L36,30 L36,28 L37,28 L37,25 L38,25 L38,17 L37,17 L37,14 L36,14 L36,12 L35,12 L35,11 L34,11 L34,8 L35,8 L35,7 Z M21,6 L20,6 L20,7 L18,7 L18,8 L17,8 L17,9 L16,9 L16,10 L14,10 L14,11 L13,11 L13,12 L12,12 L12,13 L4,13 L4,29 L10,29 L10,30 L12,30 L12,31 L13,31 L13,32 L15,32 L15,33 L16,33 L16,34 L18,34 L18,35 L19,35 L19,36 L21,36 L21,6 Z M29,13 L31,13 L31,15 L32,15 L32,17 L33,17 L33,25 L32,25 L32,27 L31,27 L31,29 L29,29 L29,28 L28,28 L28,27 L27,27 L27,26 L28,26 L28,25 L29,25 L29,17 L28,17 L28,16 L27,16 L27,15 L28,15 L28,14 L29,14 L29,13 Z"/>
+      </svg>
+        </button>
+
+        <button class="action action--share" type="button" data-action="share" aria-label="分享回答" title="分享">
+            <svg class="icon" viewBox="0 0 42 42" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M21,1 L24,1 L24,2 L25,2 L25,3 L26,3 L26,4 L27,4 L27,5 L28,5 L28,6 L29,6 L29,7 L30,7 L30,8 L31,8 L31,9 L32,9 L32,10 L33,10 L33,11 L34,11 L34,12 L35,12 L35,13 L36,13 L36,14 L37,14 L37,15 L38,15 L38,16 L39,16 L39,17 L40,17 L40,18 L41,18 L41,20 L42,20 L42,22 L41,22 L41,24 L40,24 L40,25 L39,25 L39,26 L38,26 L38,27 L37,27 L37,28 L36,28 L36,29 L35,29 L35,30 L34,30 L34,31 L33,31 L33,32 L32,32 L32,33 L31,33 L31,34 L30,34 L30,35 L29,35 L29,36 L28,36 L28,37 L27,37 L27,38 L26,38 L26,39 L25,39 L25,40 L24,40 L24,41 L21,41 L21,39 L20,39 L20,29 L18,29 L18,30 L15,30 L15,31 L13,31 L13,32 L11,32 L11,33 L9,33 L9,34 L8,34 L8,35 L6,35 L6,36 L5,36 L5,37 L4,37 L4,38 L3,38 L3,39 L2,39 L2,38 L1,38 L1,37 L0,37 L0,34 L1,34 L1,28 L2,28 L2,25 L3,25 L3,23 L4,23 L4,21 L5,21 L5,19 L6,19 L6,18 L7,18 L7,17 L8,17 L8,16 L9,16 L9,15 L10,15 L10,14 L11,14 L11,13 L13,13 L13,12 L15,12 L15,11 L20,11 L20,3 L21,3 L21,1 Z M25,7 L24,7 L24,14 L20,14 L20,15 L16,15 L16,16 L14,16 L14,17 L12,17 L12,18 L11,18 L11,19 L10,19 L10,20 L9,20 L9,22 L8,22 L8,23 L7,23 L7,25 L6,25 L6,28 L5,28 L5,31 L7,31 L7,30 L8,30 L8,29 L10,29 L10,28 L12,28 L12,27 L15,27 L15,26 L20,26 L20,25 L22,25 L22,26 L24,26 L24,35 L25,35 L25,34 L26,34 L26,33 L27,33 L27,32 L28,32 L28,31 L29,31 L29,30 L30,30 L30,29 L31,29 L31,28 L32,28 L32,27 L33,27 L33,25 L34,25 L34,24 L35,24 L35,23 L36,23 L36,22 L37,22 L37,20 L36,20 L36,19 L35,19 L35,18 L34,18 L34,17 L33,17 L33,15 L32,15 L32,14 L31,14 L31,13 L30,13 L30,12 L29,12 L29,11 L28,11 L28,10 L27,10 L27,9 L26,9 L26,8 L25,8 L25,7 Z"/>
+      </svg>
+        </button>
+
+        <button class="action action--more" type="button" data-action="more" aria-label="更多操作" title="更多">
+            <svg class="icon" viewBox="0 0 42 42" fill="currentColor" aria-hidden="true">
+        <circle cx="7" cy="21" r="3.4"/>
+        <circle cx="21" cy="21" r="3.4"/>
+        <circle cx="35" cy="21" r="3.4"/>
+      </svg>
+        </button>
+    </main>
+
+<script>
+    (function () {
+        "use strict";
+
+        var state = { like: false, dislike: false, playing: false };
+        var up = document.querySelector('[data-action="up"]');
+        var down = document.querySelector('[data-action="down"]');
+        var vol = document.querySelector('[data-action="vol"]');
+
+        function render() {
+            up.setAttribute("aria-pressed", state.like ? "true" : "false");
+            down.setAttribute("aria-pressed", state.dislike ? "true" : "false");
+            vol.setAttribute("aria-pressed", state.playing ? "true" : "false");
+            vol.classList.toggle("is-speaking", state.playing);
+            vol.setAttribute("aria-label", state.playing ? "停止朗读" : "朗读回答");
+            vol.setAttribute("title", state.playing ? "停止朗读" : "朗读");
+        }
+
+        function send(action) {
+            try {
+                if (window.AndroidActions && window.AndroidActions.onAction) {
+                    window.AndroidActions.onAction(String(action));
+                    return true;
+                }
+            } catch (error) {
+                /* Native bridge is unavailable in a plain browser preview. */
+            }
+            return false;
+        }
+
+        var buttons = document.querySelectorAll(".action");
+        for (var i = 0; i < buttons.length; i++) {
+            (function (button) {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    send(button.getAttribute("data-action"));
+                });
+            })(buttons[i]);
+        }
+
+        document.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        }, false);
+
+        window.GptActions = {
+            setState: function (next) {
+                if (!next) { return; }
+                if (typeof next.like === "boolean") { state.like = next.like; }
+                if (typeof next.dislike === "boolean") { state.dislike = next.dislike; }
+                if (typeof next.playing === "boolean") { state.playing = next.playing; }
+                render();
+            },
+            setReaction: function (value) {
+                var next = Number(value) || 0;
+                state.like = next === 1;
+                state.dislike = next === 2;
+                render();
+            },
+            setPlaying: function (value) {
+                state.playing = !!value;
+                render();
+            }
+        };
+
+        // 与 DsActionsView 复用同一个原生同步入口；两套页面各自保留命名空间。
+        window.DsActions = window.GptActions;
+
+        render();
+    })();
+</script>
+</body>
+</html>

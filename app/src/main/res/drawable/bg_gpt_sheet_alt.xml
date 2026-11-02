@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 风格设置面板：#FCFCFC 底、顶部 26dp 圆角 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/gpt_bg" />
+    <corners android:topLeftRadius="26dp" android:topRightRadius="26dp" />
+</shape>

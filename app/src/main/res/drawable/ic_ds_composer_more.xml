@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 参考稿输入区“更多”圆形加号 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,12 m-11.04,0 a11.04,11.04 0 1,0 22.08,0 a11.04,11.04 0 1,0 -22.08,0"
+        android:strokeColor="@color/ds_composer_ink"
+        android:strokeWidth="1.84" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M6.8,12 H17.2 M12,6.8 V17.2"
+        android:strokeColor="@color/ds_composer_ink"
+        android:strokeWidth="1.84" />
+</vector>

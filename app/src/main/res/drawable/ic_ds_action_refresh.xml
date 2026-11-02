@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 消息操作行：重新生成（顺时针圆形箭头）。
+     内容整体靠右，使视觉右缘与正文右缘对齐 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M22.19,13.70 A6.9,6.9 0 0 1 10.97,17.79 A6.9,6.9 0 0 1 13.04,6.02 A6.9,6.9 0 0 1 22.19,11.30"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/ds_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.4" />
+    <path
+        android:pathData="M17.7,3.2 L21.8,5.2 L17.7,7.2 Z"
+        android:fillColor="@color/ds_action_icon"
+        android:strokeColor="@color/ds_action_icon"
+        android:strokeLineJoin="round"
+        android:strokeWidth="0.8" />
+</vector>

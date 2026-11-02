@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 消息操作行：复制。内容左对齐到 0.5，视觉尺寸 14.5dp -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4.5,10.9 V6.6 A2.1,2.1 0 0 1 6.6,4.5 H12.9 A2.1,2.1 0 0 1 15.0,6.6 V13.0"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/ds_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.4" />
+    <path
+        android:pathData="M2.6,10.9 H9.5 A2.1,2.1 0 0 1 11.6,13.0 V17.0 A2.1,2.1 0 0 1 9.5,19.1 H2.6 A2.1,2.1 0 0 1 0.5,17.0 V13.0 A2.1,2.1 0 0 1 2.6,10.9 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/ds_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.4" />
+</vector>

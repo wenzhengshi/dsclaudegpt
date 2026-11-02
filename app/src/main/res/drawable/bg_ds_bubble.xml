@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 用户气泡：参考图实测 #EFF3FF，圆角 18dp -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ds_brand_soft" />
+    <corners android:radius="18dp" />
+</shape>

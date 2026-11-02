@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 消息操作行：朗读（喇叭 + 两道声波），内容左对齐 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:translateX="-3.9"
+        android:translateY="0.4">
+        <path
+            android:pathData="M4,9.4 H7.8 L13,5.2 V18.8 L7.8,14.6 H4 Z"
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="@color/ds_action_icon"
+            android:strokeLineJoin="round"
+            android:strokeWidth="1.4" />
+        <path
+            android:pathData="M16.2,9.2 C17.7,10.7 17.7,13.3 16.2,14.8 M18.8,6.6 C21.6,9.4 21.6,14.6 18.8,17.4"
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="@color/ds_action_icon"
+            android:strokeLineCap="round"
+            android:strokeWidth="1.4" />
+    </group>
+</vector>

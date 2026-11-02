@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 对话页右上角「新建 / 撰写」图标：
+     一个圆角方框轮廓，右上角开口，斜向伸出的铅笔与笔尖压在方框边缘，
+     与参考图的“带笔尖的方框轮廓”一致。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M13.4,3.8 H6.6 C5.16,3.8 4,4.96 4,6.4 v11.2 C4,19.04 5.16,20.2 6.6,20.2 h11.2 c1.44,0 2.6,-1.16 2.6,-2.6 V10.8"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_primary"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.7" />
+    <path
+        android:pathData="M10.9,14.9 L11.6,11.4 L19.3,3.7 L21.5,5.9 L13.8,13.6 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_primary"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.7" />
+    <path
+        android:pathData="M18.1,4.9 L20.7,7.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_primary"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.7" />
+</vector>

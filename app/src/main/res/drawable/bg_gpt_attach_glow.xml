@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 参考图中面板四周的大范围柔和投影：以面板中心为圆心的径向渐变 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="radial"
+        android:centerX="0.422"
+        android:centerY="0.78"
+        android:gradientRadius="285dp"
+        android:startColor="#2A000000"
+        android:centerColor="#18000000"
+        android:endColor="#00000000" />
+</shape>

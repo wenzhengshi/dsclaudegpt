@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 消息操作栏：点赞。按参考稿线性图标重绘：
+     手掌 + 竖起拇指的轮廓，描边 3.2。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M3.5,21 C3.5,18.5 4.8,17 7,17 C8.5,17 10.5,17.2 11.6,16.2 L16.2,4.8 C17,2.8 18.4,1.8 20.2,1.8 C22.3,1.8 23.6,2.8 24.3,4.8 C24.9,6.2 25.2,7.6 25.2,9.2 V14 C26,15 27.5,15.2 29,15.2 H31.8 C34.3,15.2 36.5,16.8 36.5,19.3 V30.5 C36.5,32.5 35.4,34.3 33.4,35.3 L32,36.1 C29.5,37.1 26.5,37.5 23,37.5 H8.5 C5.5,37.5 3.5,35 3.5,31.5 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+</vector>

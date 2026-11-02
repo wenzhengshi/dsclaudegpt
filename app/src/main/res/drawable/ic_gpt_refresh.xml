@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 首页右上角的环形刷新/新对话入口：开口圆环 + 末端折线箭头 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M19.8,12 A7.8,7.8 0 1,1 15.5,5.4"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="1.75"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M15.2,1.9 V5.7 H19.0"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="1.75"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

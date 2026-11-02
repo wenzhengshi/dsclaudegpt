@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 风格会话菜单：白底细边、浅蓝按压反馈 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="196dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_ds_popup"
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/menu_rename"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/chat_rename"
+        android:textColor="@color/ds_text"
+        android:textSize="14.5sp" />
+
+    <TextView
+        android:id="@+id/menu_star"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/chat_star"
+        android:textColor="@color/ds_text"
+        android:textSize="14.5sp" />
+
+    <TextView
+        android:id="@+id/menu_share"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/chat_share"
+        android:textColor="@color/ds_text"
+        android:textSize="14.5sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@color/ds_divider" />
+
+    <TextView
+        android:id="@+id/menu_delete"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/chat_delete"
+        android:textColor="@color/danger"
+        android:textSize="14.5sp" />
+
+</LinearLayout>

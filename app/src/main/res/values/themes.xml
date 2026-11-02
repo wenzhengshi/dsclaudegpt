@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <item name="colorOnPrimary">@color/card</item>
+        <item name="colorSecondary">@color/text_primary</item>
+        <item name="colorSecondaryVariant">@color/text_primary</item>
+        <item name="colorOnSecondary">@color/card</item>
+        <item name="colorSurface">@color/card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <!-- 状态栏保持可见，背景沿用页面浅色，图标使用深色，避免顶部出现黑条 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <!-- ChatGPT 风格下的轻量对话框，强调色使用参考图里的蓝色 -->
+    <style name="Theme.App.GptDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/gpt_blue</item>
+        <item name="colorSecondary">@color/gpt_blue</item>
+        <item name="colorOnSurface">@color/gpt_text</item>
+        <item name="android:colorAccent">@color/gpt_blue</item>
+    </style>
+
+    <!-- DeepSeek 风格下的对话框：白底、品牌蓝按钮 -->
+    <style name="Theme.App.DsDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/ds_brand</item>
+        <item name="colorSecondary">@color/ds_brand</item>
+        <item name="colorSurface">@color/ds_surface</item>
+        <item name="colorOnSurface">@color/ds_text</item>
+        <item name="android:colorAccent">@color/ds_brand</item>
+    </style>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 会话页标题栏更多图标：按参考稿 52×52 视口原样绘制，
+     三枚实心圆点（r=4.6，x=26.7，y=7.5/25.5/44）。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="52"
+    android:viewportHeight="52">
+    <path
+        android:pathData="M26.7,7.5 m-4.6,0 a4.6,4.6 0 1,0 9.2,0 a4.6,4.6 0 1,0 -9.2,0"
+        android:fillColor="@color/text_nav" />
+    <path
+        android:pathData="M26.7,25.5 m-4.6,0 a4.6,4.6 0 1,0 9.2,0 a4.6,4.6 0 1,0 -9.2,0"
+        android:fillColor="@color/text_nav" />
+    <path
+        android:pathData="M26.7,44 m-4.6,0 a4.6,4.6 0 1,0 9.2,0 a4.6,4.6 0 1,0 -9.2,0"
+        android:fillColor="@color/text_nav" />
+</vector>

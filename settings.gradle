@@ -1,0 +1,23 @@
+// JICREATE_ANDROID_AUTONOMOUS_SKELETON_V53P
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    plugins {
+        id 'com.android.application' version '8.5.2'
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = 'jicreate_app'
+include ':app'

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="360dp"
+    android:layout_height="match_parent"
+    android:background="@color/gpt_surface"
+    android:orientation="vertical"
+    android:paddingTop="18dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingEnd="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:text="@string/gpt_app_name"
+            android:textColor="@color/gpt_text"
+            android:textSize="26sp" />
+
+        <ImageButton
+            android:id="@+id/drawer_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/gpt_search_hint"
+            android:padding="9dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_gpt_nav_search" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/drawer_search_box"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="18dp"
+        android:background="@drawable/bg_gpt_search"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_gpt_nav_search" />
+
+        <EditText
+            android:id="@+id/drawer_search_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/gpt_search_hint"
+            android:imeOptions="actionSearch"
+            android:includeFontPadding="false"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/gpt_text"
+            android:textColorHint="@color/gpt_text_tertiary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/drawer_nav_chat"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_image" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_images"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/drawer_nav_artifacts"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_library" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_library"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/drawer_nav_projects"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_projects" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_projects"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/drawer_nav_code"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_codex" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_codex"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gpt_nav_scheduled"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_schedule" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_scheduled"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gpt_nav_plugins"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_nav_plugin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_nav_plugins"
+                android:textColor="@color/gpt_text"
+                android:textSize="15.5sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="22dp"
+        android:background="@color/gpt_divider" />
+
+    <ScrollView
+        android:id="@+id/drawer_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingBottom="14dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/drawer_recent_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp" />
+    </ScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="76dp">
+
+        <ImageButton
+            android:id="@+id/drawer_close"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/drawer_new_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="18dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_gpt_blue_pill"
+            android:drawableStart="@drawable/ic_gpt_edit_white"
+            android:drawablePadding="8dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:text="@string/gpt_tab_chat"
+            android:textColor="@color/gpt_surface"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/gpt_avatar"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="18dp"
+            android:layout_marginBottom="18dp"
+            android:background="@drawable/bg_gpt_avatar"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/gpt_avatar_text"
+            android:textColor="@color/gpt_surface"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+</LinearLayout>

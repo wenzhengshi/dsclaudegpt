@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 消息操作栏：播放。按参考稿线性图标重绘：
+     大圆角三角形轮廓，描边 3.2。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M11.6,1.7 Q5.7,-2 5.7,5 V34 Q5.7,41 11.6,37.3 L34.7,21.7 Q38.1,19.5 34.7,17.3 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+</vector>

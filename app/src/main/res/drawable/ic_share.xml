@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 消息操作栏：上传 / 分享。按参考稿 40×40 线性图标重绘：
+     箭头 + 竖杆 + 托盘，描边 3.5。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M9.2,13.5 L20.1,1.9 L30.9,13.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.5" />
+    <path
+        android:pathData="M19.75,1.9 V26.6"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.5" />
+    <path
+        android:pathData="M2,27.5 V33.05 A4.7,4.7 0 0 0 6.7,37.75 H32.8 A4.7,4.7 0 0 0 37.75,33.05 V27.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.5" />
+</vector>

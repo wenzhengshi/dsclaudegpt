@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 风格助手消息：无气泡正文 + 灰色操作行 + 右侧刷新 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
+
+    <TextView
+        android:id="@+id/msg_ai_thought"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:includeFontPadding="false"
+        android:textColor="@color/ds_text_secondary"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/msg_ai_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="5dp"
+        android:textColor="@color/ds_text"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+
+    <!-- 参考图实测：图标行高 33dp、与正文间距约 19dp、单个图标视觉 14dp、
+         相邻图标中心距 33dp；第一个图标与正文左缘对齐，刷新图标与正文右缘对齐。
+         该图标行由 assets/ds_actions.html 在 WebView 中逐像素绘制，其余部分保持原生。 -->
+    <cn.jicreate.jicreate_app.a2dde3930ff.DsActionsView
+        android:id="@+id/msg_ai_actions"
+        android:layout_width="match_parent"
+        android:layout_height="33dp"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/msg_ai_disclaimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:includeFontPadding="false"
+        android:text="@string/disclaimer"
+        android:textColor="@color/ds_text_tertiary"
+        android:textSize="12sp"
+        android:visibility="gone" />
+</LinearLayout>

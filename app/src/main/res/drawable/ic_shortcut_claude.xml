@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 桌面长按快捷方式：Claude 风格（暖橙底 + 白色星芒） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <path
+        android:pathData="M24,0 A24,24 0 0,1 48,24 A24,24 0 0,1 24,48 A24,24 0 0,1 0,24 A24,24 0 0,1 24,0 Z"
+        android:fillColor="#D97757" />
+
+    <path
+        android:pathData="M24 8 L24 16 M24 32 L24 40 M8 24 L16 24 M32 24 L40 24 M12.7 12.7 L18.4 18.4 M29.6 29.6 L35.3 35.3 M35.3 12.7 L29.6 18.4 M12.7 35.3 L18.4 29.6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.4" />
+</vector>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 附件面板右下角的白色语音胶囊：白底大圆角，内嵌品牌蓝圆 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FFFFFF" />
+    <corners android:radius="21dp" />
+</shape>

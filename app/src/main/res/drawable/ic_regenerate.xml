@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 消息操作栏：刷新 / 重新生成。按参考稿线性图标重绘：
+     大圆弧 + 右上角折线箭头，描边 3.2。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24.6dp"
+    android:height="24dp"
+    android:viewportWidth="41"
+    android:viewportHeight="40">
+    <group
+        android:translateX="0.3">
+        <path
+            android:pathData="M36.9,12.9 A18.25,18.25 0 1 0 33.6,32"
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="@color/claude_action_icon"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="3.2" />
+    </group>
+    <path
+        android:pathData="M38.5,2 V15.5 H25.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+</vector>

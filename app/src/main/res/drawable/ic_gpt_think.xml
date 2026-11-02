@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 附件面板“深入思考”：开口圆弧 + 指针与中心圆点 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M18.4,7.2 A7.8,7.8 0 1,0 18.2,17.2"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M14.7,12.3 L18.3,7.0"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M13.4,13.2 m-1.5,0 a1.5,1.5 0 1,0 3.0,0 a1.5,1.5 0 1,0 -3.0,0"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="1.7" />
+    <path
+        android:pathData="M19.6,10.4 A5.6,5.6 0 0 1 19.4,16.8"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/gpt_text"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round" />
+</vector>

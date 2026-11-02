@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  天空球在设备不支持 OpenGL 时的静态兜底：近似参考稿的蓝白天空渐变。
+  正常运行时会由 SkyOrbView 的着色器覆盖，只有渲染失败才显示。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:angle="270"
+                android:centerColor="#6C95F3"
+                android:endColor="#B7C8F9"
+                android:startColor="#4576EC"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <item
+        android:bottom="48dp"
+        android:left="64dp"
+        android:right="4dp"
+        android:top="16dp">
+        <shape android:shape="oval">
+            <gradient
+                android:centerColor="#55E5ECFE"
+                android:endColor="#00E5ECFE"
+                android:gradientRadius="78dp"
+                android:startColor="#F2FFFFFF"
+                android:type="radial" />
+        </shape>
+    </item>
+
+    <item
+        android:bottom="14dp"
+        android:left="18dp"
+        android:right="26dp"
+        android:top="96dp">
+        <shape android:shape="oval">
+            <gradient
+                android:centerColor="#66E5ECFE"
+                android:endColor="#00DCE5FD"
+                android:gradientRadius="96dp"
+                android:startColor="#D9FFFFFF"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

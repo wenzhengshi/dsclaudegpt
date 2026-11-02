@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
+
+    <TextView
+        android:id="@+id/msg_ai_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="5dp"
+        android:textColor="@color/text_primary"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/msg_ai_actions"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/msg_action_copy"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_copy"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_copy" />
+
+        <ImageButton
+            android:id="@+id/msg_action_share"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_share"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_share" />
+
+        <ImageButton
+            android:id="@+id/msg_action_play"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_play"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_play" />
+
+        <ImageButton
+            android:id="@+id/msg_action_like"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_like"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_thumb_up" />
+
+        <ImageButton
+            android:id="@+id/msg_action_dislike"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_dislike"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_thumb_down" />
+
+        <ImageButton
+            android:id="@+id/msg_action_regen"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_regenerate"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_regenerate" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/msg_ai_disclaimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:includeFontPadding="false"
+        android:text="@string/disclaimer"
+        android:textColor="@color/text_tertiary"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+</LinearLayout>

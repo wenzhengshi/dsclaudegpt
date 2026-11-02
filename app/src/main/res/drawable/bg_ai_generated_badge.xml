@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 全局“AI生成”标识底板：半透明白底 + 细描边，固定悬浮在内容右下角 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ai_badge_bg" />
+    <corners android:radius="999dp" />
+    <stroke
+        android:width="0.6dp"
+        android:color="@color/ai_badge_stroke" />
+</shape>

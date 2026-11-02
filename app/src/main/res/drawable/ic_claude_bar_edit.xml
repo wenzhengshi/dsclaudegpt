@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 会话页标题栏编辑图标：按参考稿 52×52 视口原样绘制，
+     圆角方框 + 对角铅笔，4.6 描边、圆头圆角、无填充。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="52"
+    android:viewportHeight="52">
+    <path
+        android:pathData="M15.5,9.5 H10 C5.5,9.5 2,13 2,17.5 V41.5 C2,46 5.5,49.5 10,49.5 H34 C38.5,49.5 42,46 42,41.5 V35.3"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_nav"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4.6" />
+    <path
+        android:pathData="M39,4.5 C36.5,7 35.5,8.5 34,10 L28.5,15 L23.5,20 L21,25 L20,29.5 L18.5,32.7 L26,32.2 L29,28.5 L35,25 L40,20 L45.5,15 L49.5,10 C48.5,6.5 46.5,3.5 43.5,2.5 C41,2.5 39.2,3.2 39,4.5 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_nav"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4.6" />
+</vector>

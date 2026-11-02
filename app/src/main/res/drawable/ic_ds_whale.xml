@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 鲸鱼 Logo 的矢量近似：蓝色身体 + 上翘尾鳍 + 白色眼睛 + 水花 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="@color/ds_brand"
+        android:pathData="M12,41 C12,29 22,20 34,19 C44,18 52,24 55,33 C58,32 62,29 65,25 C66,33 62,40 56,44 C49,49 36,50 27,48 C19,46 13,45 12,41 Z" />
+    <path
+        android:fillColor="@color/ds_brand"
+        android:pathData="M54,30 C57,23 63,16 70,12 C69,20 66,27 61,32 C65,32 69,30 72,27 C71,36 65,41 58,40 C59,37 58,33 54,30 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,31 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,57 C18,52 24,52 30,57 C36,62 42,62 48,57 C52,54 56,53 60,55"
+        android:strokeColor="@color/ds_brand"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.2" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M20,16 C22,11 26,8 30,7"
+        android:strokeColor="@color/ds_brand"
+        android:strokeLineCap="round"
+        android:strokeWidth="3" />
+</vector>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 会话标题栏反馈条：90% 黑、全圆角，对应参考稿 .toast -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/gpt_nav_toast" />
+    <corners android:radius="999dp" />
+</shape>

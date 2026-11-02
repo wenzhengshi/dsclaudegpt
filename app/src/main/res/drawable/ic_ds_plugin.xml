@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DeepSeek 附件面板“插件”图标：插头轮廓，使用 DeepSeek 图标灰 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M9,3.4 V7.2 M15,3.4 V7.2 M6,7.2 H18 V10.4 A6,6 0 0 1 6,10.4 Z M12,16.4 V20.6"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/ds_icon"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

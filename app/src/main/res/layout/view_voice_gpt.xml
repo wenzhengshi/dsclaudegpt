@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gpt_bg">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/gpt_voice_menu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_gpt_circle_white"
+            android:contentDescription="@string/cd_menu"
+            android:elevation="1.5dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_menu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/voice_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_gpt_circle_white"
+            android:contentDescription="@string/cd_settings"
+            android:elevation="1.5dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_gear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/voice_title"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <!--
+          天空语音球：直径按参考 HTML 的 orb-size 等比换算（由 MainActivity.layoutVoiceOrb()
+          依据当前页面宽高计算），位置改为在页面内容区上下左右居中。
+          上下约束同时指向父布局，ConstraintLayout 自动垂直居中，无需再手动算顶距。
+          球体由 OpenGL 着色器实时绘制，外圈是呼吸光晕。
+        -->
+        <FrameLayout
+            android:id="@+id/voice_orb_wrap"
+            android:layout_width="210dp"
+            android:layout_height="210dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <cn.jicreate.jicreate_app.a2dde3930ff.OrbHaloView
+                android:id="@+id/voice_orb_halo"
+                android:layout_width="277dp"
+                android:layout_height="277dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/voice_orb_fallback"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gpt_sky_orb" />
+
+            <cn.jicreate.jicreate_app.a2dde3930ff.SkyOrbView
+                android:id="@+id/voice_mic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:contentDescription="@string/cd_mic"
+                android:focusable="true" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/voice_error_card"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/voice_retry"
+                android:layout_width="0dp"
+                android:layout_height="0dp" />
+
+            <ImageButton
+                android:id="@+id/voice_error_close"
+                android:layout_width="0dp"
+                android:layout_height="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/voice_connecting"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/voice_failed"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/voice_bottom_row"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_gpt_composer"
+            android:elevation="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="18dp"
+            android:paddingEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:includeFontPadding="false"
+                android:text="@string/gpt_voice_hint"
+                android:textColor="@color/gpt_text_tertiary"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/voice_speaker"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_voice"
+                android:padding="9dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gpt_mic_off" />
+
+            <ImageButton
+                android:id="@+id/voice_close"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_black_circle"
+                android:contentDescription="@string/cd_close"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_close_white" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/voice_attach"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/voice_model"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

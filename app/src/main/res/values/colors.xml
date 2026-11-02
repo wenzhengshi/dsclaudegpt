@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#F9F9F7</color>
+    <color name="bg_alt">#F8F8F6</color>
+    <color name="bg_drawer">#F3F4EF</color>
+    <color name="card">#FFFFFF</color>
+    <color name="text_primary">#131313</color>
+    <color name="text_nav">#383934</color>
+    <color name="text_secondary">#797874</color>
+    <color name="text_tertiary">#8A8985</color>
+    <color name="text_hint">#7A7977</color>
+    <color name="orange">#D87757</color>
+    <color name="orange_dark">#D87754</color>
+    <color name="chip_bg">#F0EFEB</color>
+    <color name="chip_bg_alt">#F4F3EF</color>
+    <color name="black_btn">#0F0F0F</color>
+    <color name="divider">#E7E7E2</color>
+    <color name="divider_drawer">#DCDDD8</color>
+    <color name="divider_card">#EAEDF2</color>
+    <color name="badge_bg">#E7F0F9</color>
+    <color name="badge_text">#3C6FA8</color>
+    <color name="link">#2F66A8</color>
+    <color name="scrim">#52000000</color>
+    <color name="error_border">#E2E2DD</color>
+    <color name="retry_border">#C9C8C3</color>
+    <color name="input_border">#EDEDEA</color>
+    <color name="dash_border">#D4D4D0</color>
+    <color name="toggle_off">#CECECE</color>
+    <color name="voice_blue">#BCD1E4</color>
+    <color name="bubble_user">#EEEFF3</color>
+    <color name="action_icon">#6F6E6A</color>
+    <!-- Claude 消息操作栏：参考稿线性图标实测色 #7A7974 -->
+    <color name="claude_action_icon">#7A7974</color>
+    <color name="send_muted">#E4E4DF</color>
+    <color name="chat_divider">#EFEFEA</color>
+    <color name="danger">#C4453B</color>
+    <color name="launcher_bg">#F9F9F7</color>
+    <!-- 桌面图标三种样式：蓝鲸 / 缠绕几何 / 星芒（取自设计稿） -->
+    <color name="icon_bg_whale">#FFFFFF</color>
+    <color name="icon_bg_interlace">#FFFFFF</color>
+    <color name="icon_bg_starburst">#DA7250</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+
+    <!-- ChatGPT 风格：参考图主背景 #FCFCFC、白色卡片 #FFFFFF、
+         浅蓝用户气泡与蓝色强调色 -->
+    <color name="gpt_bg">#FCFCFC</color>
+    <color name="gpt_surface">#FFFFFF</color>
+    <color name="gpt_text">#0D0D0D</color>
+    <color name="gpt_text_secondary">#6B6B6F</color>
+    <color name="gpt_text_tertiary">#8E8E93</color>
+    <color name="gpt_divider">#ECECEC</color>
+    <color name="gpt_segment_track">#EFEFEF</color>
+    <color name="gpt_bubble_user">#E7F0FB</color>
+    <color name="gpt_blue">#3262E6</color>
+    <color name="gpt_blue_dark">#2F5FE0</color>
+    <color name="gpt_icon">#262626</color>
+    <color name="gpt_search_bg">#F2F2F5</color>
+    <color name="gpt_scrim">#80000000</color>
+
+    <!-- DeepSeek 风格：参考图实测背景纯白 #FFFFFF、用户气泡 #EFF3FF、
+         品牌蓝 #4D6BFE、输入卡片白底 + #F0F0F0 分割线 -->
+    <color name="ds_bg">#FFFFFF</color>
+    <color name="ds_surface">#FFFFFF</color>
+    <color name="ds_text">#1A1A1A</color>
+    <color name="ds_text_secondary">#8C8C8C</color>
+    <color name="ds_text_tertiary">#B0B0B0</color>
+    <!-- 消息操作行图标：参考图实测 #8F9094 -->
+    <color name="ds_action_icon">#8F9094</color>
+    <color name="ds_brand">#4D6BFE</color>
+    <color name="ds_brand_soft">#EFF3FF</color>
+    <color name="ds_border">#E8E8E8</color>
+    <color name="ds_divider">#F0F0F0</color>
+    <color name="ds_search_bg">#F5F5F5</color>
+    <color name="ds_icon">#4A4A4A</color>
+    <color name="ds_scrim">#4D000000</color>
+
+    <!-- DeepSeek 输入组件：按参考稿实测色值单独定义，避免影响其余界面 -->
+    <color name="ds_composer_border">#F0F0F0</color>
+    <color name="ds_composer_blue">#4C70E0</color>
+    <color name="ds_composer_blue_bg">#EFF3FF</color>
+    <color name="ds_composer_blue_border">#D5DFF8</color>
+    <color name="ds_composer_blue_pressed_bg">#E2EAFF</color>
+    <color name="ds_composer_blue_pressed_border">#BCCBF2</color>
+    <color name="ds_composer_placeholder">#B9BABC</color>
+    <color name="ds_composer_ink">#0F0F0F</color>
+
+    <!-- ChatGPT 会话标题栏：按本轮 HTML 参考稿取色 -->
+    <color name="gpt_nav_ink">#0D0D0D</color>
+    <color name="gpt_nav_muted">#6F6F6F</color>
+    <color name="gpt_nav_danger">#B3261E</color>
+    <color name="gpt_nav_paper">#FFFFFF</color>
+    <color name="gpt_nav_action_pressed">#F5F5F5</color>
+    <color name="gpt_nav_action_selected">#F3F3F3</color>
+    <color name="gpt_nav_item_pressed">#EDEDED</color>
+    <color name="gpt_nav_hover">#FBFBFB</color>
+    <color name="gpt_nav_toast">#E60D0D0D</color>
+    <color name="gpt_nav_popover_border">#0F0D0D0D</color>
+
+    <!-- 空对话首页：按本轮 HTML 参考稿取色（1080 设计宽） -->
+    <color name="gpt_home_bg">#F5F5F5</color>
+    <color name="gpt_home_glow">#FCFCFC</color>
+    <color name="gpt_home_track">#E8E8E8</color>
+    <color name="gpt_home_empty_title">#7C7C7C</color>
+    <color name="gpt_home_empty_sub">#B3B3B3</color>
+    <color name="gpt_home_empty_icon">#A8A8A8</color>
+
+    <!-- 历史矢量底板留存的配色，运行时不再展示 -->
+    <color name="ai_badge_bg">#E6FFFFFF</color>
+    <color name="ai_badge_stroke">#1A0D0D0D</color>
+    <color name="ai_badge_text">#8A0D0D0D</color>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 智能搜索：地球 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,12 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0"
+        android:strokeColor="@color/ds_text"
+        android:strokeWidth="1.6" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3,12 H21 M12,3 C8.4,6.5 8.4,17.5 12,21 M12,3 C15.6,6.5 15.6,17.5 12,21"
+        android:strokeColor="@color/ds_text"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.5" />
+</vector>

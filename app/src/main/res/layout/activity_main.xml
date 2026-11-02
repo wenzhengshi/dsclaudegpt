@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.jicreate.jicreate_app.a2dde3930ff.DrawerSwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <FrameLayout
+        android:id="@+id/screen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/drawer_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/drawer_scrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/scrim" />
+
+        <FrameLayout
+            android:id="@+id/drawer_panel"
+            android:layout_width="360dp"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/sheet_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/sheet_scrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/scrim" />
+
+        <FrameLayout
+            android:id="@+id/sheet_host"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- 会话标题栏操作反馈：深色胶囊，按参考稿固定在页面底部居中 -->
+    <TextView
+        android:id="@+id/nav_toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_gpt_nav_toast"
+        android:elevation="12dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:maxWidth="287dp"
+        android:paddingStart="10dp"
+        android:paddingTop="6.67dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="6.67dp"
+        android:shadowColor="#2E0D0D0D"
+        android:shadowDy="3"
+        android:shadowRadius="10"
+        android:singleLine="true"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:accessibilityLiveRegion="polite"
+        android:visibility="gone" />
+
+    <!-- 空对话标题栏反馈：距屏幕底部 12vh 居中，样式按本轮参考稿 .toast -->
+    <TextView
+        android:id="@+id/gpt_home_toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_gpt_nav_toast"
+        android:elevation="12dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:paddingStart="15dp"
+        android:paddingTop="8.6dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="8.6dp"
+        android:singleLine="true"
+        android:textColor="#FFFFFF"
+        android:textSize="12.2sp"
+        android:accessibilityLiveRegion="polite"
+        android:visibility="gone" />
+</cn.jicreate.jicreate_app.a2dde3930ff.DrawerSwipeLayout>

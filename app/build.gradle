@@ -1,0 +1,115 @@
+plugins { id 'com.android.application' }
+
+// ======================================================================
+// 签名配置读取顺序：
+//   1) 项目根目录 keystore.properties（不入库）
+//   2) Gradle 属性：-PSTORE_FILE=... / gradle.properties / ~/.gradle/gradle.properties
+//   3) 环境变量 STORE_FILE / STORE_PW / KEY_ALIAS / KEY_PW
+// 四项缺任意一项时视为「未配置签名」，release 走 Android 默认 debug 签名，
+// 这样 fork 本仓库的人不配密钥也能直接 `./gradlew assembleDebug` / `assembleRelease`。
+// ======================================================================
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file('keystore.properties')
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+def readStore = { String name, String defVal = null ->
+    def v = keystoreProps.getProperty(name)
+    if (v == null) v = project.findProperty(name)
+    if (v == null) v = System.getenv(name)
+    if (v == null || v.toString().trim().isEmpty()) return defVal
+    return v.toString().trim()
+}
+
+def storeFileValue = readStore('STORE_FILE')
+def storePw = readStore('STORE_PW')
+def keyAliasValue = readStore('KEY_ALIAS')
+def keyPw = readStore('KEY_PW')
+
+def hasReleaseSigning = storeFileValue != null && storePw != null &&
+        keyAliasValue != null && keyPw != null &&
+        rootProject.file(storeFileValue).exists()
+
+def boolProp = { String name, boolean defVal ->
+    def v = readStore(name)
+    v == null ? defVal : v.toBoolean()
+}
+
+android {
+    namespace 'cn.jicreate.jicreate_app.a2dde3930ff'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'cn.jicreate.jicreate_app.a2dde3930ff'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile = rootProject.file(storeFileValue)
+                storePassword = storePw
+                keyAlias = keyAliasValue
+                keyPassword = keyPw
+                v1SigningEnabled = boolProp('V1_ON', true)
+                v2SigningEnabled = boolProp('V2_ON', true)
+                enableV3Signing = boolProp('V3_ON', true)
+                enableV4Signing = boolProp('V4_ON', false)
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // ==== Universal APK + ABI splits ====
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a"
+            universalApk true
+        }
+    }
+
+    // ==== 保守的 META-INF excludes（只排除重复的 LICENSE/NOTICE）====
+    packaging {
+        resources {
+            excludes += [
+                'META-INF/DEPENDENCIES',
+                'META-INF/NOTICE',
+                'META-INF/NOTICE.txt',
+                'META-INF/LICENSE',
+                'META-INF/LICENSE.txt'
+            ]
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}

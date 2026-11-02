@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  蓝豚王冠图标（圆角方形版）：用于应用内“桌面图标”预览，
+  同时作为 Android 7.0 以下系统的桌面图标（这些系统不支持自适应图标）。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FEFEFE" />
+        </shape>
+    </item>
+    <item
+        android:bottom="2.35dp"
+        android:left="2.35dp"
+        android:right="2.35dp"
+        android:top="2.35dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="9.3dp" />
+            <gradient
+                android:angle="270"
+                android:centerColor="#F15E16"
+                android:centerY="0.45"
+                android:endColor="#C3310C"
+                android:startColor="#FC8A24"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_launcher_rays_dolphin" />
+    <item android:drawable="@drawable/ic_launcher_foreground_dolphin" />
+</layer-list>

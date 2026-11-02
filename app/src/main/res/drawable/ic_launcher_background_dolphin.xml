@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  蓝豚王冠图标的自适应背景：橙色渐变底 + 米白色放射光芒。
+  前景（海豚、皇冠、墨镜、雪茄与白色绳结）见 ic_launcher_foreground_dolphin。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:centerColor="#F15E16"
+                android:centerY="0.45"
+                android:endColor="#C3310C"
+                android:startColor="#FC8A24"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_launcher_rays_dolphin" />
+</layer-list>

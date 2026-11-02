@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_icon_dolphin"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_icon_dolphin"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.App"
+        android:usesCleartextTraffic="true">
+        <!--
+          桌面长按快捷方式：三套界面风格（Claude / ChatGPT / DeepSeek）。
+          meta-data 同时挂在 MainActivity 与三个桌面入口上，
+          这样无论当前启用的是哪个图标，长按都能看到同一组风格快捷方式。
+        -->
+        <activity
+            android:name="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <!--
+          桌面图标切换：默认样式（蓝豚王冠）使用下面这个真实入口 Activity，
+          另外三种样式（蓝鲸、缠绕几何、星芒）各对应一个 activity-alias；
+          运行时只启用其中一个，通过 PackageManager.setComponentEnabledSetting 切换桌面图标。
+        -->
+        <activity
+            android:name=".LaunchEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon_dolphin"
+            android:label="@string/app_name"
+            android:noHistory="true"
+            android:roundIcon="@mipmap/ic_icon_dolphin"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <!-- 内置图标样式 2：蓝鲸 -->
+        <activity-alias
+            android:name=".IconStyleWhale"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon_whale"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_icon_whale"
+            android:targetActivity="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- 内置图标样式 3：缠绕几何 -->
+        <activity-alias
+            android:name=".IconStyleInterlace"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon_interlace"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_icon_interlace"
+            android:targetActivity="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- 内置图标样式 4：星芒 -->
+        <activity-alias
+            android:name=".IconStyleStarburst"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon_starburst"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_icon_starburst"
+            android:targetActivity="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

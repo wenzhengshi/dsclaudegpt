@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 语音输入：声波 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M4.6,10.2 V13.8 M9.2,7.4 V16.6 M13.8,5.4 V18.6 M18.4,8.6 V15.4"
+        android:strokeColor="@color/ds_text"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.8" />
+</vector>

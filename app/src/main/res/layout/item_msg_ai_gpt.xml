@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="22dp">
+
+    <TextView
+        android:id="@+id/msg_ai_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="5dp"
+        android:textColor="@color/gpt_text"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+
+    <!-- 操作行由 assets/gpt_actions.html 在 WebView 中逐像素绘制：
+         行高 34dp、视觉图标 18dp、触控格 36dp；图标路径与 DeepSeek 操作行共用，
+         末尾保留 ChatGPT 的“更多”三点。 -->
+    <cn.jicreate.jicreate_app.a2dde3930ff.GptActionsView
+        android:id="@+id/msg_ai_actions"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/msg_ai_disclaimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:includeFontPadding="false"
+        android:text="@string/gpt_disclaimer"
+        android:textColor="@color/gpt_text_tertiary"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+</LinearLayout>

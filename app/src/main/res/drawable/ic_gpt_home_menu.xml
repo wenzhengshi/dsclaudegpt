@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 空对话标题栏左侧菜单图标：51×28，两条圆头横线（5.5 描边） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="51dp"
+    android:height="28dp"
+    android:viewportWidth="51"
+    android:viewportHeight="28">
+    <path
+        android:pathData="M2.75,2.75 L48.25,2.75"
+        android:strokeColor="#0D0D0D"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M2.75,25.25 L43.25,25.25"
+        android:strokeColor="#0D0D0D"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round" />
+</vector>

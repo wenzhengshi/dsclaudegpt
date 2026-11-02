@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 参考稿左上角菜单：上长下短两条 5 单位圆头横线 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18.2dp"
+    android:height="10.2dp"
+    android:viewportWidth="50"
+    android:viewportHeight="28">
+    <path
+        android:pathData="M2.5,2.5 H47.5"
+        android:strokeColor="@color/gpt_nav_ink"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M2.5,25.5 H30.5"
+        android:strokeColor="@color/gpt_nav_ink"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+</vector>

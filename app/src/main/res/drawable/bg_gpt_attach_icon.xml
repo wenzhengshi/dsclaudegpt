@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 附件面板每行左侧的浅灰圆形图标底（参考图实测 #E8E8E8） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#E8E8E8" />
+</shape>

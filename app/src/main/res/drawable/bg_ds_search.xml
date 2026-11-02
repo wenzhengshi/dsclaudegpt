@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 抽屉搜索框：参考图 #F5F5F5 圆角胶囊 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ds_search_bg" />
+    <corners android:radius="14dp" />
+</shape>

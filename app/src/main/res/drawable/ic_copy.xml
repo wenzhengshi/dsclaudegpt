@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 消息操作栏：复制。按参考稿 40×40 线性图标重绘：
+     后框 + 遮住重叠部分的前框，描边 3.2，圆角 4。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M18.5,12.5 H33.5 A4,4 0 0 1 37.5,16.5 V33.5 A4,4 0 0 1 33.5,37.5 H18.5 A4,4 0 0 1 14.5,33.5 V16.5 A4,4 0 0 1 18.5,12.5 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+    <path
+        android:pathData="M5.5,1.5 H21.5 A4,4 0 0 1 25.5,5.5 V21.5 A4,4 0 0 1 21.5,25.5 H5.5 A4,4 0 0 1 1.5,21.5 V5.5 A4,4 0 0 1 5.5,1.5 Z"
+        android:fillColor="@color/bg"
+        android:strokeColor="@color/claude_action_icon"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3.2" />
+</vector>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 参考稿“深度思考”双轨道图标，41×41 坐标等比换算 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="45">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M-1.76,12 a13.76,6.44 0 1,0 27.52,0 a13.76,6.44 0 1,0 -27.52,0"
+            android:strokeColor="@color/ds_composer_blue"
+            android:strokeWidth="2.7" />
+    </group>
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:rotation="-45">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M-1.76,12 a13.76,6.44 0 1,0 27.52,0 a13.76,6.44 0 1,0 -27.52,0"
+            android:strokeColor="@color/ds_composer_blue"
+            android:strokeWidth="2.7" />
+    </group>
+    <path
+        android:fillColor="@color/ds_composer_blue"
+        android:pathData="M12,12 m-1.87,0 a1.87,1.87 0 1,0 3.74,0 a1.87,1.87 0 1,0 -3.74,0" />
+</vector>

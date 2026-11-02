@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 会话标题栏弹出菜单：98% 白底、13dp 圆角、6% 黑细边 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FAFFFFFF" />
+    <corners android:radius="12dp" />
+    <stroke android:width="0.33dp" android:color="@color/gpt_nav_popover_border" />
+</shape>

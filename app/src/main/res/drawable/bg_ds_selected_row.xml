@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 侧边栏中当前会话的浅蓝高亮 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ds_brand_soft" />
+    <corners android:radius="12dp" />
+</shape>

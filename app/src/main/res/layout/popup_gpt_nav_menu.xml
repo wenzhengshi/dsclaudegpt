@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ChatGPT 会话标题栏 · 主菜单：工作区 / 首页 / 草稿箱 / 设置 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_gpt_nav_popover"
+    android:orientation="vertical"
+    android:padding="5.33dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:includeFontPadding="false"
+        android:letterSpacing="0.015"
+        android:paddingStart="6dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="4dp"
+        android:text="@string/gpt_nav_workspace"
+        android:textColor="@color/gpt_nav_muted"
+        android:textSize="11.33sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="match_parent"
+            android:layout_height="30.67dp"
+            android:background="@drawable/bg_gpt_nav_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp">
+
+            <TextView
+                android:id="@+id/nav_home_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.008"
+                android:text="@string/gpt_nav_home"
+                android:textColor="@color/gpt_nav_ink"
+                android:textSize="13.33sp" />
+
+            <ImageView
+                android:id="@+id/nav_home_check"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_gpt_nav_check" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_drafts"
+            android:layout_width="match_parent"
+            android:layout_height="30.67dp"
+            android:layout_marginTop="0.67dp"
+            android:background="@drawable/bg_gpt_nav_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp">
+
+            <TextView
+                android:id="@+id/nav_drafts_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.008"
+                android:text="@string/gpt_nav_drafts"
+                android:textColor="@color/gpt_nav_ink"
+                android:textSize="13.33sp" />
+
+            <ImageView
+                android:id="@+id/nav_drafts_check"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_gpt_nav_check"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_settings"
+            android:layout_width="match_parent"
+            android:layout_height="30.67dp"
+            android:layout_marginTop="0.67dp"
+            android:background="@drawable/bg_gpt_nav_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp">
+
+            <TextView
+                android:id="@+id/nav_settings_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.008"
+                android:text="@string/gpt_nav_settings"
+                android:textColor="@color/gpt_nav_ink"
+                android:textSize="13.33sp" />
+
+            <ImageView
+                android:id="@+id/nav_settings_check"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_gpt_nav_check"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

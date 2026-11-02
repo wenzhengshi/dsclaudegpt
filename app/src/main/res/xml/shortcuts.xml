@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    桌面图标长按快捷方式：让用户从桌面直接进入三套界面风格中的任意一套。
+    每个快捷方式都显式指向 MainActivity，并携带 UI_STYLE extra，
+    MainActivity 启动时会先应用该风格，再按风格装配界面。
+    长按菜单由系统 ShortcutManager 展示，无需应用内额外入口。
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_claude"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="style_claude"
+        android:shortcutLongLabel="@string/shortcut_claude_long"
+        android:shortcutShortLabel="@string/shortcut_claude_short">
+        <intent
+            android:action="cn.jicreate.jicreate_app.a2dde3930ff.action.OPEN_STYLE"
+            android:targetClass="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity"
+            android:targetPackage="cn.jicreate.jicreate_app.a2dde3930ff">
+            <extra
+                android:name="cn.jicreate.jicreate_app.a2dde3930ff.extra.UI_STYLE"
+                android:value="0" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_chatgpt"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="style_chatgpt"
+        android:shortcutLongLabel="@string/shortcut_chatgpt_long"
+        android:shortcutShortLabel="@string/shortcut_chatgpt_short">
+        <intent
+            android:action="cn.jicreate.jicreate_app.a2dde3930ff.action.OPEN_STYLE"
+            android:targetClass="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity"
+            android:targetPackage="cn.jicreate.jicreate_app.a2dde3930ff">
+            <extra
+                android:name="cn.jicreate.jicreate_app.a2dde3930ff.extra.UI_STYLE"
+                android:value="1" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_deepseek"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="style_deepseek"
+        android:shortcutLongLabel="@string/shortcut_deepseek_long"
+        android:shortcutShortLabel="@string/shortcut_deepseek_short">
+        <intent
+            android:action="cn.jicreate.jicreate_app.a2dde3930ff.action.OPEN_STYLE"
+            android:targetClass="cn.jicreate.jicreate_app.a2dde3930ff.MainActivity"
+            android:targetPackage="cn.jicreate.jicreate_app.a2dde3930ff">
+            <extra
+                android:name="cn.jicreate.jicreate_app.a2dde3930ff.extra.UI_STYLE"
+                android:value="2" />
+        </intent>
+    </shortcut>
+</shortcuts>

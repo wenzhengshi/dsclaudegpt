@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 会话页标题栏菜单图标：按参考稿 52×52 视口原样绘制，
+     上方两条等长横线 + 底部一条短横线，4.6 描边、圆头。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="52"
+    android:viewportHeight="52">
+    <path
+        android:pathData="M2.5,5.3 H49.5 M2.5,25.5 H49.5 M2.5,46 H23.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/text_nav"
+        android:strokeLineCap="round"
+        android:strokeWidth="4.6" />
+</vector>
