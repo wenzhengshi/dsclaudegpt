@@ -1,14 +1,31 @@
-# DsClaudeGpt
+<p align="center">
+  <img src="docs/icon.png" width="140" alt="DsClaudeGpt 应用图标">
+</p>
+
+<h1 align="center">DsClaudeGpt</h1>
+
+<p align="center">
+  <a href="https://tulingai.com/app-market.html?id=48"><img src="https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-%E5%AE%89%E8%A3%85%E5%8C%85-ff6a00?style=for-the-badge" alt="下载安装包"></a>
+  <img src="https://img.shields.io/badge/Platform-Android%2021%2B-brightgreen?style=for-the-badge" alt="Platform">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License: MIT"></a>
+</p>
 
 > Use Claude and GPT by DeepSeek — you only need a DeepSeek API key.
 >
 > 一个 Android 聊天客户端：三套皮肤（Claude / ChatGPT / DeepSeek）共用一套 DeepSeek 接口与本地聊天记录，只需要一个 DeepSeek API Key。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Platform](https://img.shields.io/badge/Platform-Android%2021%2B-brightgreen)
-![Kotlin](https://img.shields.io/badge/Java-17-orange)
-
 ---
+
+## 📲 下载安装
+
+| 方式 | 地址 |
+| --- | --- |
+| **应用市场（推荐）** | **<https://tulingai.com/app-market.html?id=48>** |
+| 源码自行构建 | 见下方 [构建](#构建) 一节 |
+
+- 安装后首次启动需要填入 **DeepSeek API Key**（`sk-` 开头），没有 Key 无法对话；
+- API Key 申请地址：<https://platform.deepseek.com/>；
+- 支持 `armeabi-v7a` / `arm64-v8a` 两种架构，Android 5.0 (API 21) 及以上。
 
 ## 这个项目是什么
 
@@ -93,8 +110,8 @@ KEY_PW=your-key-password
 
 ## 使用
 
-1. 安装后首次启动会提示填写 API Key；
-2. 到 [platform.deepseek.com](https://platform.deepseek.com/) 申请一个 Key（`sk-` 开头）；
+1. 从 [应用市场](https://tulingai.com/app-market.html?id=48) 下载安装，或自行构建（见上方 [构建](#构建)）；
+2. 首次启动会提示填写 API Key，到 [platform.deepseek.com](https://platform.deepseek.com/) 申请一个（`sk-` 开头）；
 3. 粘贴到 `设置 → API Key`，可点「获取模型列表」验证连通性；
 4. 需要接自建网关或第三方兼容服务时，把 `Base URL` 改成对应地址即可。
 
@@ -126,6 +143,7 @@ KEY_PW=your-key-password
 │   │   └── gpt_actions.html                # ChatGPT 皮肤操作栏
 │   └── res/                                # 布局 / 矢量图 / 颜色 / 字符串
 ├── gradle/wrapper/                         # Gradle 8.14.2 wrapper
+├── docs/icon.png                           # 应用图标（README 展示用）
 ├── build.gradle · settings.gradle
 ├── gradle.properties
 └── LICENSE
