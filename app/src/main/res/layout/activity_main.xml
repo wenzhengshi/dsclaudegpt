@@ -93,4 +93,5 @@
         android:textSize="12.2sp"
         android:accessibilityLiveRegion="polite"
         android:visibility="gone" />
+
 </cn.jicreate.jicreate_app.a2dde3930ff.DrawerSwipeLayout>

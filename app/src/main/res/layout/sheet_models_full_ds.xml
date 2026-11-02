@@ -279,6 +279,7 @@
         android:textSize="13.5sp" />
 
     <LinearLayout
+        android:id="@+id/full_think_row"
         android:layout_width="match_parent"
         android:layout_height="58dp"
         android:layout_marginStart="18dp"
@@ -300,6 +301,7 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/full_think_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"

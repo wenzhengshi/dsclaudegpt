@@ -45,14 +45,38 @@ DsClaudeGpt 是一个**纯 Java 写的原生 Android 应用**（无 Kotlin、无
 | --- | --- |
 | 🎨 三套皮肤 | Claude / ChatGPT / DeepSeek，可在设置里切换，也可用桌面长按快捷方式直接进入指定风格 |
 | 🖼️ 四款桌面图标 | 蓝豚王冠（默认）、蓝鲸、缠绕几何、星芒，运行时通过 `activity-alias` 切换 |
-| 📡 流式输出 | 原生 `HttpURLConnection` 直连 SSE，自研增量解析，支持中途停止 |
-| 🗂️ 本地会话库 | 会话列表、重命名、删除、搜索，全部落地在本地（`ChatStore`） |
+| 🧠 深度思考 | 思考开关 + 低/中/高三档强度，按 `reasoning_effort` 真实下发；回答上方有可展开的思考卡片，带计时 |
+| 📡 流式输出 | 原生 `HttpURLConnection` 直连 SSE，自研增量解析（支持多行 `data:`、`event:` 类型），可中途停止 |
+| 🔁 断线续写 | 网络中断自动重试，并从断点续写；内置重叠去重，不会把已输出内容重复一遍 |
+| 💾 草稿落盘 | 生成过程中增量写库，进程被杀也不丢；重开会话显示「已中断 · 继续生成」 |
+| 📴 非流式兜底 | 接口不回 SSE 时自动按整段结果渲染并提示，不会白屏 |
+| 🗂️ 本地会话库 | 会话列表、重命名、删除、搜索，全部落地在本地 SQLite（`ChatStore`，已升到 v3） |
 | 🕵️ 无痕对话 | 不写历史、不进搜索，退出即消失 |
 | 📎 附件 | 图片（base64 随消息发送）与文件，走 `FileProvider` |
-| 🎙️ 语音输入 | 自定义波形 / 录音态界面 |
+| 🎙️ 语音输入 | 自定义波形 / 录音态界面，带可朗读的状态提示 |
 | 🔀 模型切换 | 设置里可直接写模型名，也可调用 `/models` 拉取当前 Key 可用模型列表 |
-| 🧠 思考态 UI | 推理过程折叠展示、加载动画、错误重试 |
-| 🌐 任意兼容端点 | Base URL 可改，任何 OpenAI 兼容网关都能接 |
+| 🌐 任意兼容端点 | Base URL 可改，任何 OpenAI 兼容网关都能接；网关不认 `reasoning_effort` / `thinking` 参数时会自动降级重试 |
+
+## 更新日志
+
+### v2（2026-11）
+
+**新增**
+
+- **深度思考全链路**：`Prefs` 新增 `think_level`（低/中/高）与 `show_thought`，请求里真实下发 `reasoning_effort`；设置页、模型面板、回答上方三处共用同一套开关。
+- **思考过程卡片**：新增 `bg_thought_card[_ds|_gpt].xml` 三套配色与 `msg_ai_reasoning*` 一组控件，支持流式渲染、计时、展开/收起，历史消息也能回看。
+- **断点续写与半成品保护**：`DeepSeekClient` 新增 live buffer、`MAX_AUTO_RETRY` / `MAX_AUTO_RESUME` / `MAX_EOF_RESUME` 重试策略、续写去重（`trimSuffixOverlap` / `stripReplay`），并把 `finish_reason=length` 正确识别为「可能没写完」。
+- **草稿增量落库**：`ChatStore` 升到 `DB_VERSION=3`，新增 `reasoning` 与 `partial` 两列，`onUpgrade` 用 `ALTER TABLE` 增量升级、不删老数据。
+- **空状态与语音状态**：ChatGPT 皮肤首页补了空对话问候语，语音页补了「等待说话 / 正在聆听」状态文字（带 `accessibilityLiveRegion`）。
+
+**修复**
+
+- 接口不支持 SSE 时整段结果被丢弃 → 现在走非流式兜底并提示。
+- 网关不认识 `reasoning_effort` / `thinking` 参数导致 400 → 逐级去掉参数重试。
+- 模型只返回 `reasoning_content` 没有正文 → 直接把思考内容当回答展示并提示。
+- 生成中途被杀掉后，历史里会留下空的助手草稿行 → 读取时跳过空草稿。
+- `strings.xml` 结尾 `</resources>` 缩进错位、`colors.xml` 残留已废弃的 `ai_badge_*` 配色 → 一并清理。
+
 
 ## 构建
 

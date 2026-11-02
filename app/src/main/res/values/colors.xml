@@ -104,9 +104,4 @@
     <color name="gpt_home_empty_title">#7C7C7C</color>
     <color name="gpt_home_empty_sub">#B3B3B3</color>
     <color name="gpt_home_empty_icon">#A8A8A8</color>
-
-    <!-- 历史矢量底板留存的配色，运行时不再展示 -->
-    <color name="ai_badge_bg">#E6FFFFFF</color>
-    <color name="ai_badge_stroke">#1A0D0D0D</color>
-    <color name="ai_badge_text">#8A0D0D0D</color>
 </resources>

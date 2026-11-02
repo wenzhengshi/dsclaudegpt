@@ -15,7 +15,7 @@ import java.util.List;
 public class ChatStore extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "claude_chat.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 3;
 
     public static final String ROLE_USER = "user";
     public static final String ROLE_ASSISTANT = "assistant";
@@ -25,12 +25,30 @@ public class ChatStore extends SQLiteOpenHelper {
         public final String role;
         public final String content;
         public final long createdAt;
+        /** 助手消息的思考过程（reasoning）；用户消息或旧数据为空串。 */
+        public final String reasoning;
+        /**
+         * 是否为未完成的半成品回答（生成中被停止、断网或进程被回收）。
+         * 重新打开会话后据此显示“继续生成”，不会把已有内容当成完整回答。
+         */
+        public final boolean partial;
 
         public Message(long id, String role, String content, long createdAt) {
+            this(id, role, content, createdAt, "");
+        }
+
+        public Message(long id, String role, String content, long createdAt, String reasoning) {
+            this(id, role, content, createdAt, reasoning, false);
+        }
+
+        public Message(long id, String role, String content, long createdAt,
+                       String reasoning, boolean partial) {
             this.id = id;
             this.role = role;
             this.content = content;
             this.createdAt = createdAt;
+            this.reasoning = reasoning == null ? "" : reasoning;
+            this.partial = partial;
         }
     }
 
@@ -65,6 +83,8 @@ public class ChatStore extends SQLiteOpenHelper {
                 + "conversation_id INTEGER NOT NULL,"
                 + "role TEXT NOT NULL,"
                 + "content TEXT NOT NULL,"
+                + "reasoning TEXT NOT NULL DEFAULT '',"
+                + "partial INTEGER NOT NULL DEFAULT 0,"
                 + "created_at INTEGER NOT NULL)");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_messages_conv "
                 + "ON messages(conversation_id, id)");
@@ -72,7 +92,22 @@ public class ChatStore extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // 目前只有 v1，保留空实现避免误删用户数据。
+        // v2 新增思考过程列：旧会话保留正文，只是没有可展开的思考内容。
+        if (oldVersion < 2) {
+            try {
+                db.execSQL("ALTER TABLE messages ADD COLUMN reasoning TEXT NOT NULL DEFAULT ''");
+            } catch (Exception ignored) {
+                // 列已存在时忽略，避免升级过程反复失败。
+            }
+        }
+        // v3 新增未完成标记：重启后仍能识别“已停止/已中断”的半成品回答。
+        if (oldVersion < 3) {
+            try {
+                db.execSQL("ALTER TABLE messages ADD COLUMN partial INTEGER NOT NULL DEFAULT 0");
+            } catch (Exception ignored) {
+                // 列已存在时忽略，避免升级过程反复失败。
+            }
+        }
     }
 
     // ------------------------------------------------------------------
@@ -170,6 +205,15 @@ public class ChatStore extends SQLiteOpenHelper {
     // 消息
     // ------------------------------------------------------------------
     public long addMessage(long conversationId, String role, String content) {
+        return addMessage(conversationId, role, content, "");
+    }
+
+    public long addMessage(long conversationId, String role, String content, String reasoning) {
+        return addMessage(conversationId, role, content, reasoning, false);
+    }
+
+    public long addMessage(long conversationId, String role, String content,
+                           String reasoning, boolean partial) {
         if (conversationId <= 0) {
             return 0;
         }
@@ -178,6 +222,8 @@ public class ChatStore extends SQLiteOpenHelper {
         values.put("conversation_id", conversationId);
         values.put("role", role);
         values.put("content", content == null ? "" : content);
+        values.put("reasoning", reasoning == null ? "" : reasoning);
+        values.put("partial", partial ? 1 : 0);
         values.put("created_at", now);
         long id = getWritableDatabase().insert("messages", null, values);
         touchConversation(conversationId);
@@ -190,6 +236,27 @@ public class ChatStore extends SQLiteOpenHelper {
         }
         ContentValues values = new ContentValues();
         values.put("content", content == null ? "" : content);
+        getWritableDatabase().update("messages", values, "id=?",
+                new String[]{String.valueOf(messageId)});
+    }
+
+    /**
+     * 生成过程中增量保存：正文刚收到一半、应用被杀掉时也不会丢。
+     * 助手消息在发起请求时就先插入空行，之后按这一行不断覆盖更新。
+     */
+    public void updateMessage(long messageId, String content, String reasoning) {
+        updateMessage(messageId, content, reasoning, false);
+    }
+
+    public void updateMessage(long messageId, String content, String reasoning,
+                              boolean partial) {
+        if (messageId <= 0) {
+            return;
+        }
+        ContentValues values = new ContentValues();
+        values.put("content", content == null ? "" : content);
+        values.put("reasoning", reasoning == null ? "" : reasoning);
+        values.put("partial", partial ? 1 : 0);
         getWritableDatabase().update("messages", values, "id=?",
                 new String[]{String.valueOf(messageId)});
     }
@@ -213,13 +280,23 @@ public class ChatStore extends SQLiteOpenHelper {
     public List<Message> loadMessages(long conversationId) {
         List<Message> result = new ArrayList<>();
         Cursor cursor = getReadableDatabase().query("messages",
-                new String[]{"id", "role", "content", "created_at"},
+                new String[]{"id", "role", "content", "created_at", "reasoning", "partial"},
                 "conversation_id=?", new String[]{String.valueOf(conversationId)},
                 null, null, "id ASC");
         try {
             while (cursor.moveToNext()) {
-                result.add(new Message(cursor.getLong(0), cursor.getString(1),
-                        cursor.getString(2), cursor.getLong(3)));
+                String role = cursor.getString(1);
+                String content = cursor.getString(2);
+                String reasoning = cursor.getString(4);
+                boolean partial = cursor.getInt(5) == 1;
+                // 生成中途被杀掉时可能留下空的助手草稿行，读取时直接跳过。
+                if (ROLE_ASSISTANT.equals(role)
+                        && (content == null || content.isEmpty())
+                        && (reasoning == null || reasoning.isEmpty())) {
+                    continue;
+                }
+                result.add(new Message(cursor.getLong(0), role, content,
+                        cursor.getLong(3), reasoning, partial));
             }
         } finally {
             cursor.close();

@@ -208,6 +208,9 @@ public class MainActivity extends AppCompatActivity {
     private View voiceConnecting;
     private View voiceFailed;
     private View voiceErrorCard;
+    /** ChatGPT 语音页球体下方的可读状态（轻点说话 / 正在聆听）。 */
+    private TextView voiceStatus;
+    private boolean voiceListening = false;
 
     // ChatGPT 语音页的天空语音球（参考本轮 HTML 的 WebGL 球体）
     private View voiceOrbWrap;
@@ -251,12 +254,24 @@ public class MainActivity extends AppCompatActivity {
     private boolean dsStyle = false;
     private GptHomeNavView gptHomeNav;
     private View gptEmptyWork;
+    private View gptHomeEmpty;
     private Runnable gptHomeToastHide;
     private EditText drawerSearchInput;
 
-    // DeepSeek 风格：深度思考开关与本次回复开始时间（用于“已思考（用时 N 秒）”）
+    // 思考开关：开关、强度与回答上方的思考过程展示（三套皮肤共用）
     private boolean thinkOn = false;
+    private int thinkLevel = Prefs.THINK_LEVEL_HIGH;
+    private boolean showThought = true;
     private long replyStartedAt = 0L;
+    private final StringBuilder reasoningBuffer = new StringBuilder();
+    private String reasoningText = "";
+    private long reasoningStartedAt = 0L;
+    private View aiReasoning;
+    private TextView aiReasoningHeader;
+    private TextView aiReasoningText;
+    private ImageView aiReasoningSpinner;
+    private ImageView aiReasoningChevron;
+    private boolean aiReasoningExpanded = true;
 
     /** 当前会话在本地数据库中的 id，0 表示尚未落库。 */
     private long currentConversationId = 0L;
@@ -267,17 +282,33 @@ public class MainActivity extends AppCompatActivity {
         final String text;
         final long dbId;
         final List<Attachment> attachments;
+        /** 助手消息的思考过程；为空时不展示思考卡片。 */
+        final String reasoning;
+        /** 是否为“已停止 / 已中断”的半成品回答：可以点“继续生成”接着写。 */
+        final boolean partial;
 
         Turn(String role, String text, long dbId) {
-            this(role, text, dbId, null);
+            this(role, text, dbId, null, "");
         }
 
         Turn(String role, String text, long dbId, List<Attachment> attachments) {
+            this(role, text, dbId, attachments, "");
+        }
+
+        Turn(String role, String text, long dbId, List<Attachment> attachments,
+             String reasoning) {
+            this(role, text, dbId, attachments, reasoning, false);
+        }
+
+        Turn(String role, String text, long dbId, List<Attachment> attachments,
+             String reasoning, boolean partial) {
             this.role = role;
             this.text = text == null ? "" : text;
             this.dbId = dbId;
             this.attachments = attachments == null
                     ? new ArrayList<>() : new ArrayList<>(attachments);
+            this.reasoning = reasoning == null ? "" : reasoning;
+            this.partial = partial;
         }
     }
 
@@ -314,9 +345,36 @@ public class MainActivity extends AppCompatActivity {
     private int aiTurnIndex = -1;
     private final StringBuilder streamBuffer = new StringBuilder();
     private String streamingText = "";
+    /** 已经写进 aiBody 的字符数，用于增量 append，避免每个 token 都全量重排。 */
+    private int streamRenderedLength = 0;
+    /** 已经写进思考卡片的字符数。 */
+    private int reasoningRenderedLength = 0;
     private boolean flushScheduled = false;
     private boolean modelSwitchedNotified = false;
     private boolean imagesDroppedNotified = false;
+    private boolean nonStreamNotified = false;
+    /** 模型只返回思考内容时，同一进程只解释一次，避免每次回答都弹提示。 */
+    private boolean reasoningFallbackHintShown = false;
+
+    // ---- 断线续写 / 半成品保护 ----
+    /** 每次请求的代号：旧请求迟到的回调直接丢弃，避免串到新消息上。 */
+    private long streamGeneration = 0L;
+    /** 当前助手回答在数据库中的行：请求开始就先插入，边生成边覆盖更新。 */
+    private long draftDbId = 0L;
+    private long lastDraftSaveAt = 0L;
+    /** 本次是“继续生成”：新内容追加到已有回答后面，不新建一条消息。 */
+    private boolean resumingReply = false;
+    private int resumeTurnIndex = -1;
+    /** 续写前已经显示的文字，用于拼出完整正文。 */
+    private String streamPrefix = "";
+    /** 续写时只 append，不能用 setText 覆盖已有内容。 */
+    private boolean appendOnly = false;
+    /** 本次回答收到了“可能被截断”的信号。 */
+    private boolean incompleteStream = false;
+    /** 半成品回答下方的“已中断 · 继续生成”提示。 */
+    private TextView aiFooter;
+    /** 长时间没有收到任何内容时给一次提示，避免看起来像卡死。 */
+    private boolean slowHintPending = false;
 
     private PopupWindow chatMenuPopup;
     private GptChatNavController gptNavController;
@@ -328,6 +386,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+
+    /** 25 秒还没收到任何内容时提示一次：连接仍然有效，客户端还会自动重试/续写。 */
+    private final Runnable slowResponseHint = new Runnable() {
+        @Override
+        public void run() {
+            slowHintPending = false;
+            if (chatSending) {
+                Toast.makeText(MainActivity.this, R.string.stream_slow_hint,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     private final Runnable connectionFailure = new Runnable() {
         @Override
@@ -348,8 +418,35 @@ public class MainActivity extends AppCompatActivity {
             if (!chatSending || aiBody == null) {
                 return;
             }
-            streamingText = streamBuffer.toString();
-            aiBody.setText(streamingText);
+            // 只把本次新到的增量 append 进去。全量 setText 会让长回答每帧重新排版，
+            // 在低端机上表现为“一段一段地跳”，失去实时感。
+            int total = streamBuffer.length();
+            if (total > streamRenderedLength) {
+                String piece = streamBuffer.substring(streamRenderedLength);
+                if (streamRenderedLength == 0 && !appendOnly) {
+                    aiBody.setText(piece);
+                } else {
+                    aiBody.append(piece);
+                }
+                streamRenderedLength = total;
+            }
+            // 思考阶段回答正文还是空的，实时思考内容同样用增量刷新。
+            if (showThought && aiReasoningText != null
+                    && aiReasoningText.getVisibility() == View.VISIBLE) {
+                int reasoningTotal = reasoningBuffer.length();
+                if (reasoningTotal > reasoningRenderedLength) {
+                    String thoughtPiece =
+                            reasoningBuffer.substring(reasoningRenderedLength);
+                    if (reasoningRenderedLength == 0) {
+                        aiReasoningText.setText(thoughtPiece);
+                    } else {
+                        aiReasoningText.append(thoughtPiece);
+                    }
+                    reasoningRenderedLength = reasoningTotal;
+                }
+            }
+            // 边生成边落盘：即使进程随后被杀掉，已经生成的部分也不会丢。
+            persistStreamDraft(false);
             scrollChatToBottom();
         }
     };
@@ -367,6 +464,8 @@ public class MainActivity extends AppCompatActivity {
         gptStyle = prefs.uiStyle() == Prefs.STYLE_CHATGPT;
         dsStyle = prefs.uiStyle() == Prefs.STYLE_DEEPSEEK;
         thinkOn = prefs.thinkOn();
+        thinkLevel = prefs.thinkLevel();
+        showThought = prefs.showThought();
         webSearchOn = prefs.searchOn();
         store = new ChatStore(this);
         client = new DeepSeekClient();
@@ -735,8 +834,8 @@ public class MainActivity extends AppCompatActivity {
 
     /** 首页与对话页的“深度思考 / 智能搜索”胶囊共用同一份开关状态。 */
     private void applyDsPills() {
-        applyDsPill(homeView, "home_", thinkOn, webSearchOn);
-        applyDsPill(chatView, "chat_", thinkOn, webSearchOn);
+        applyDsPill(homeView, "home_", effectiveThinking(), webSearchOn);
+        applyDsPill(chatView, "chat_", effectiveThinking(), webSearchOn);
     }
 
     private void applyDsPill(View root, String prefix, boolean think, boolean search) {
@@ -788,24 +887,119 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 开关与“始终深度推理”任一开启，本次请求都会真正开启思考。 */
+    private boolean effectiveThinking() {
+        return thinkOn || extendOn;
+    }
+
     private void toggleThink() {
         toggleThink(true);
     }
 
     private void toggleThink(boolean announce) {
-        thinkOn = !thinkOn;
+        setThinkEnabled(!effectiveThinking(), announce);
+    }
+
+    /**
+     * 设置总开关。关闭时同时取消“始终使用深度推理”，避免出现开关已关、
+     * 但请求仍在思考的矛盾状态；状态会立即持久化并刷新所有可见入口。
+     */
+    private void setThinkEnabled(boolean enabled, boolean announce) {
+        thinkOn = enabled;
+        if (!enabled) {
+            extendOn = false;
+            prefs.setExtendOn(false);
+        }
         prefs.setThinkOn(thinkOn);
         applyDsPills();
+        applyFullModel(fullSelected);
+        refreshThinkLevelViews();
         if (!announce) {
             return;
         }
         int tip;
         if (gptStyle) {
-            tip = thinkOn ? R.string.gpt_think_tip_on : R.string.gpt_think_tip_off;
+            tip = enabled ? R.string.gpt_think_tip_on : R.string.gpt_think_tip_off;
+        } else if (dsStyle) {
+            tip = enabled ? R.string.ds_think_tip_on : R.string.ds_think_tip_off;
         } else {
-            tip = thinkOn ? R.string.ds_think_tip_on : R.string.ds_think_tip_off;
+            tip = enabled ? R.string.think_enabled_tip : R.string.think_disabled_tip;
         }
         Toast.makeText(this, tip, Toast.LENGTH_SHORT).show();
+    }
+
+    private String thinkLevelLabel() {
+        if (thinkLevel == Prefs.THINK_LEVEL_LOW) {
+            return getString(R.string.think_level_low);
+        }
+        if (thinkLevel == Prefs.THINK_LEVEL_MEDIUM) {
+            return getString(R.string.think_level_medium);
+        }
+        return getString(R.string.think_level_high);
+    }
+
+    /** 强度值：关闭时显示“已关闭”，开启时显示低/中/高。 */
+    private void updateThinkLevelLabel(TextView view) {
+        if (view == null) {
+            return;
+        }
+        view.setText(effectiveThinking() ? thinkLevelLabel()
+                : getString(R.string.think_level_off));
+    }
+
+    /** 刷新所有已存在的强度显示（设置面板、模型面板与模型标签）。 */
+    private void refreshThinkLevelViews() {
+        updateThinkLevelLabel(findViewById(R.id.settings_think_level_value));
+        if (fullSheet != null) {
+            updateThinkLevelLabel(fullSheet.findViewById(R.id.full_think_value));
+        }
+        if (homeModelView != null) {
+            homeModelView.setText(displayModelName(fullSelected, false) + " " + thinkLevelLabel());
+        }
+        if (incognitoModelView != null) {
+            incognitoModelView.setText(displayModelName(fullSelected, false)
+                    + " " + thinkLevelLabel());
+        }
+        if (voiceModelView != null) {
+            voiceModelView.setText(displayModelName(fullSelected, false)
+                    + " " + thinkLevelLabel());
+        }
+        if (chatModelView != null) {
+            chatModelView.setText(displayModelName(fullSelected, false)
+                    + " " + thinkLevelLabel());
+        }
+    }
+
+    /**
+     * 选择思考强度：关闭 / 低 / 中 / 高。选“关闭”等价于关闭深度思考开关；
+     * 选任一强度会同时打开开关并保存档位。
+     */
+    private void showThinkLevelDialog(final TextView valueView) {
+        final String[] labels = {
+                getString(R.string.think_level_off),
+                getString(R.string.think_level_low),
+                getString(R.string.think_level_medium),
+                getString(R.string.think_level_high)
+        };
+        int checked = effectiveThinking() ? thinkLevel + 1 : 0;
+        dialogBuilder()
+                .setTitle(R.string.think_level_dialog_title)
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    if (which == 0) {
+                        setThinkEnabled(false, false);
+                    } else {
+                        thinkLevel = which - 1;
+                        prefs.setThinkLevel(thinkLevel);
+                        setThinkEnabled(true, false);
+                        Toast.makeText(MainActivity.this,
+                                getString(R.string.think_level_changed, thinkLevelLabel()),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    updateThinkLevelLabel(valueView);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     private void toggleDsSearch() {
@@ -826,6 +1020,7 @@ public class MainActivity extends AppCompatActivity {
     /** ChatGPT 空对话首页：自绘标题栏、工作建议入口。 */
     private void setupGptHome() {
         gptEmptyWork = homeView.findViewById(R.id.gpt_empty_work);
+        gptHomeEmpty = homeView.findViewById(R.id.gpt_home_empty);
         gptHomeNav = homeView.findViewById(R.id.gpt_home_nav);
         if (gptHomeNav != null) {
             gptHomeNav.setListener(new GptHomeNavView.Listener() {
@@ -866,8 +1061,11 @@ public class MainActivity extends AppCompatActivity {
         if (gptHomeNav != null) {
             gptHomeNav.setActiveTab(chatTab);
         }
-        // 聊天页与工作页都不展示空态文案：聊天页仅留标题栏与输入框，
-        // 工作页的任务建议入口在标题栏与输入框之间上下居中。
+        // 聊天页：标题栏与输入框之间保留一句轻量问候，避免大面积空白像白屏；
+        // 工作页：问候让位给任务建议入口，列表在同样区间内上下居中。
+        if (gptHomeEmpty != null) {
+            gptHomeEmpty.setVisibility(chatTab ? View.VISIBLE : View.GONE);
+        }
         if (gptEmptyWork != null) {
             if (!chatTab) {
                 if (gptEmptyWork.getVisibility() != View.VISIBLE) {
@@ -1298,6 +1496,7 @@ public class MainActivity extends AppCompatActivity {
         voiceConnecting = voiceView.findViewById(R.id.voice_connecting);
         voiceFailed = voiceView.findViewById(R.id.voice_failed);
         voiceErrorCard = voiceView.findViewById(R.id.voice_error_card);
+        voiceStatus = voiceView.findViewById(R.id.voice_status);
 
         voiceView.findViewById(R.id.voice_settings).setOnClickListener(v -> openSheet(SHEET_SETTINGS));
         View gptVoiceMenu = voiceView.findViewById(R.id.gpt_voice_menu);
@@ -1336,6 +1535,9 @@ public class MainActivity extends AppCompatActivity {
                             .start();
                 }
                 voiceOrb.pulse();
+                // 再点一次结束聆听：状态文字同步切换，用户始终知道当前是否在收音。
+                voiceListening = !voiceListening;
+                updateVoiceStatus();
             });
             voiceView.addOnLayoutChangeListener((v, left, top, right, bottom,
                                                  oldLeft, oldTop, oldRight, oldBottom) ->
@@ -1420,6 +1622,15 @@ public class MainActivity extends AppCompatActivity {
         if (voiceOrbHalo != null) {
             voiceOrbHalo.hide();
         }
+    }
+
+    /** 语音球下方的状态文字：空闲时提示轻点，点击后明确告诉用户正在聆听。 */
+    private void updateVoiceStatus() {
+        if (voiceStatus == null) {
+            return;
+        }
+        voiceStatus.setText(voiceListening
+                ? R.string.gpt_voice_status_listening : R.string.gpt_voice_status_idle);
     }
 
     private void retryConnection() {
@@ -1598,7 +1809,9 @@ public class MainActivity extends AppCompatActivity {
                 String visible = decodeVisibleText(message.content);
                 history.add(new Turn(message.role, visible, message.id, attachments));
             } else {
-                history.add(new Turn(message.role, message.content, message.id));
+                // 半成品标记一并恢复：重启后最后一条仍能点“继续生成”接着写。
+                history.add(new Turn(message.role, message.content, message.id, null,
+                        message.reasoning, message.partial));
             }
         }
         showChatScreen();
@@ -1616,7 +1829,12 @@ public class MainActivity extends AppCompatActivity {
             if (ChatStore.ROLE_USER.equals(turn.role)) {
                 row = addUserBubble(turn.text, turn.attachments);
             } else {
-                row = addAiMessage(turn.text, i);
+                row = addAiMessage(turn.text, i, turn.reasoning);
+                // 只有最后一条半成品才给“继续生成”入口：
+                // 中间那些中断的回答后面已经继续聊过，再续写会打乱上下文。
+                if (turn.partial && i == history.size() - 1) {
+                    attachHistoryFooter(row, i, getString(R.string.partial_interrupted));
+                }
             }
             row.setTag(i);
         }
@@ -1645,22 +1863,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetConversation() {
+        // 离开当前会话前先收尾：正在生成的回答要落盘，不能因为切页面就丢掉。
+        if (chatSending) {
+            stopChatGeneration();
+        }
         handler.removeCallbacks(streamFlush);
+        cancelSlowHint();
         if (client != null) {
             client.cancel();
         }
         stopSpeaking();
         removeLoadingRow();
         removeErrorRow();
+        removeFooter();
         chatSending = false;
+        streamGeneration++;
+        draftDbId = 0L;
+        lastDraftSaveAt = 0L;
+        resumingReply = false;
+        resumeTurnIndex = -1;
+        streamPrefix = "";
+        appendOnly = false;
+        incompleteStream = false;
         aiRow = null;
         aiBody = null;
         aiActions = null;
         aiDisclaimer = null;
+        aiReasoning = null;
+        aiReasoningHeader = null;
+        aiReasoningText = null;
+        aiReasoningSpinner = null;
+        aiReasoningChevron = null;
         aiTurnIndex = -1;
         streamBuffer.setLength(0);
+        reasoningBuffer.setLength(0);
         streamingText = "";
+        reasoningText = "";
+        streamRenderedLength = 0;
+        reasoningRenderedLength = 0;
+        reasoningStartedAt = 0L;
         flushScheduled = false;
+        nonStreamNotified = false;
         modelSwitchedNotified = false;
         history.clear();
         currentConversationId = 0L;
@@ -1718,18 +1961,43 @@ public class MainActivity extends AppCompatActivity {
         }
         chatSending = true;
         setComposerSendingState();
+        scheduleSlowHint();
         // 发送后收起输入法面板；输入框仍然可用，点一下即可继续输入下一条。
         dismissComposerKeyboard();
+        removeFooter();
+        streamGeneration++;
+        draftDbId = 0L;
+        lastDraftSaveAt = 0L;
+        resumingReply = false;
+        resumeTurnIndex = -1;
+        streamPrefix = "";
+        appendOnly = false;
+        incompleteStream = false;
         streamingText = "";
         streamBuffer.setLength(0);
+        streamRenderedLength = 0;
+        reasoningRenderedLength = 0;
         flushScheduled = false;
+        reasoningBuffer.setLength(0);
+        reasoningText = "";
+        reasoningStartedAt = 0L;
+        nonStreamNotified = false;
+        aiReasoningExpanded = true;
         aiTurnIndex = history.size();
+        // 先建一条空的助手消息：之后每帧把已生成内容覆盖进去，
+        // 这样用户停止、断网、甚至进程被杀，已经回答的部分都还在。
+        if (!incognitoMode && currentConversationId > 0L) {
+            draftDbId = store.addMessage(currentConversationId, ChatStore.ROLE_ASSISTANT,
+                    "", "", true);
+            lastDraftSaveAt = System.currentTimeMillis();
+        }
 
         aiRow = LayoutInflater.from(this).inflate(styleLayout(R.layout.item_msg_ai,
                 R.layout.item_msg_ai_gpt, R.layout.item_msg_ai_ds), chatMessages, false);
         aiBody = aiRow.findViewById(R.id.msg_ai_text);
         aiActions = aiRow.findViewById(R.id.msg_ai_actions);
         aiDisclaimer = aiRow.findViewById(R.id.msg_ai_disclaimer);
+        setupReasoningViews(aiRow);
         // DeepSeek 的 HTML 图标行需要保持测量（WebView 依赖真实宽度计算 viewport），
         // 因此用 INVISIBLE 而非 GONE；其余风格继续 GONE，不额外占位。
         aiActions.setVisibility(aiActions instanceof DsActionsView
@@ -1748,17 +2016,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestReply() {
+        requestReply("");
+    }
+
+    /**
+     * @param continuationPrefix 非空表示“继续生成”：界面上已经显示过这段文字，
+     *                           本次请求只把新内容追加在后面，绝不能清空重来。
+     */
+    private void requestReply(String continuationPrefix) {
+        final boolean continuing = continuationPrefix != null && !continuationPrefix.isEmpty();
         List<DeepSeekClient.Msg> messages = new ArrayList<>();
+        // 思考开关真正落到请求参数：thinking + reasoning_effort。
+        final boolean thinking = effectiveThinking();
+        final int level = thinkLevel;
         String system = prefs.systemPrompt();
-        if (dsStyle || gptStyle) {
-            // 深度思考是真实生效的开关：直接追加到本次请求的系统提示中。
-            if (thinkOn) {
-                system = system + "\n\n请先进行深入的逐步推理，再给出结论；最终回答保持简洁清晰。";
+        if (thinking) {
+            // 参数之外的兜底：即使网关忽略了 reasoning_effort，不同强度也有可感知差异。
+            if (level == Prefs.THINK_LEVEL_LOW) {
+                system = system + "\n\n本次开启深度思考（低强度）：思考过程保持简短，只做必要推理。";
+            } else if (level == Prefs.THINK_LEVEL_HIGH) {
+                system = system + "\n\n本次开启深度思考（高强度）：请先进行深入的逐步推理，"
+                        + "再给出结论；最终回答保持简洁清晰。";
+            } else {
+                system = system + "\n\n本次开启深度思考（中强度）：先梳理关键步骤再回答。";
             }
-            if (dsStyle && webSearchOn) {
-                system = system + "\n\n用户已开启智能搜索：请结合你掌握的最新公开信息回答，"
-                        + "无法确认时明确说明。";
-            }
+        }
+        if (dsStyle && webSearchOn) {
+            system = system + "\n\n用户已开启智能搜索：请结合你掌握的最新公开信息回答，"
+                    + "无法确认时明确说明。";
         }
         messages.add(new DeepSeekClient.Msg("system", system));
         replyStartedAt = System.currentTimeMillis();
@@ -1797,26 +2082,137 @@ public class MainActivity extends AppCompatActivity {
             messages.add(new DeepSeekClient.Msg(turn.role, content, images));
         }
 
+        if (continuing) {
+            // 续写：历史里最后一条就是已生成的部分回答，再补一条“接着写”的指令。
+            messages.add(new DeepSeekClient.Msg("user", DeepSeekClient.CONTINUE_PROMPT));
+        }
+
         modelSwitchedNotified = false;
         imagesDroppedNotified = false;
+        final long myGeneration = streamGeneration;
         final String model = prefs.model();
         client.stream(prefs.apiKey(), prefs.baseUrl(), model, Prefs.FALLBACK_MODEL,
-                messages, new DeepSeekClient.Callback() {
+                messages, thinking, level, continuing ? continuationPrefix : null,
+                new DeepSeekClient.Callback() {
                     @Override
                     public void onDelta(final String delta) {
-                        handler.post(() -> handleDelta(delta));
+                        handler.post(() -> {
+                            if (myGeneration != streamGeneration) {
+                                return;
+                            }
+                            handleDelta(delta);
+                        });
+                    }
+
+                    @Override
+                    public void onReasoningDelta(final String delta) {
+                        handler.post(() -> {
+                            if (myGeneration != streamGeneration) {
+                                return;
+                            }
+                            handleReasoningDelta(delta);
+                        });
+                    }
+
+                    @Override
+                    public void onReasoningAsAnswer() {
+                        handler.post(() -> {
+                            if (!chatSending || myGeneration != streamGeneration) {
+                                return;
+                            }
+                            // 模型没有返回正文、只返回了思考内容：客户端会把这段文字
+                            // 作为回答正文推送过来。这里清空并隐藏思考卡片，避免同一段
+                            // 文字在“思考过程”和回答里重复出现。
+                            reasoningBuffer.setLength(0);
+                            reasoningText = "";
+                            reasoningRenderedLength = 0;
+                            if (aiReasoning != null) {
+                                aiReasoning.setVisibility(View.GONE);
+                                if (aiReasoningSpinner != null) {
+                                    aiReasoningSpinner.clearAnimation();
+                                    aiReasoningSpinner.setVisibility(View.GONE);
+                                }
+                            }
+                            if (!reasoningFallbackHintShown) {
+                                reasoningFallbackHintShown = true;
+                                Toast.makeText(MainActivity.this,
+                                        R.string.reasoning_only_shown,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onStreamStart() {
+                        handler.post(() -> {
+                            if (!chatSending || myGeneration != streamGeneration) {
+                                return;
+                            }
+                            // 确认收到 SSE 事件，立刻结束“连接中”占位。
+                            removeLoadingRow();
+                        });
+                    }
+
+                    @Override
+                    public void onNonStream() {
+                        handler.post(() -> {
+                            if (!chatSending || myGeneration != streamGeneration
+                                    || nonStreamNotified) {
+                                return;
+                            }
+                            nonStreamNotified = true;
+                            // 不把整段 JSON 伪装成流式：明确告诉用户当前接口没走 SSE。
+                            Toast.makeText(MainActivity.this,
+                                    R.string.stream_not_supported, Toast.LENGTH_LONG).show();
+                        });
+                    }
+
+                    @Override
+                    public void onRetry(final int attempt, final String reason) {
+                        handler.post(() -> {
+                            if (myGeneration != streamGeneration) {
+                                return;
+                            }
+                            // 保留“正在连接”的呼吸点：重试期间界面仍在等待，不是卡死。
+                            Toast.makeText(MainActivity.this,
+                                    getString(R.string.stream_retrying, attempt),
+                                    Toast.LENGTH_SHORT).show();
+                        });
+                    }
+
+                    @Override
+                    public void onAutoResume(final int attempt, final String partial) {
+                        handler.post(() -> {
+                            if (myGeneration != streamGeneration || !chatSending) {
+                                return;
+                            }
+                            // 断线瞬间可能还有没上屏的增量：先补齐再续写，避免丢字。
+                            flushStreamNow();
+                            persistStreamDraft(true);
+                            Toast.makeText(MainActivity.this,
+                                    R.string.stream_resuming, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+
+                    @Override
+                    public void onIncomplete() {
+                        handler.post(() -> {
+                            if (myGeneration == streamGeneration) {
+                                incompleteStream = true;
+                            }
+                        });
                     }
 
                     @Override
                     public void onDone(final String full) {
                         handler.post(() -> {
-                            if (!chatSending) {
+                            if (!chatSending || myGeneration != streamGeneration) {
                                 return;
                             }
                             handler.removeCallbacks(streamFlush);
                             String text = full == null ? "" : full;
                             if (text.trim().isEmpty()) {
-                                text = streamBuffer.toString();
+                                text = streamFullText();
                             }
                             completeReply(text);
                         });
@@ -1825,7 +2221,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onError(final String message, final int code) {
                         handler.post(() -> {
-                            if (!chatSending) {
+                            if (!chatSending || myGeneration != streamGeneration) {
                                 return;
                             }
                             handler.removeCallbacks(streamFlush);
@@ -1836,7 +2232,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onModelSwitched(final String switchedModel) {
                         handler.post(() -> {
-                            if (modelSwitchedNotified) {
+                            if (myGeneration != streamGeneration || modelSwitchedNotified) {
                                 return;
                             }
                             modelSwitchedNotified = true;
@@ -1851,7 +2247,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onImagesDropped() {
                         handler.post(() -> {
-                            if (imagesDroppedNotified) {
+                            if (myGeneration != streamGeneration || imagesDroppedNotified) {
                                 return;
                             }
                             imagesDroppedNotified = true;
@@ -1863,24 +2259,258 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /** 立刻把缓冲区里还没上屏的增量刷出去（续写前调用，保证不丢字）。 */
+    private void flushStreamNow() {
+        handler.removeCallbacks(streamFlush);
+        flushScheduled = false;
+        streamFlush.run();
+    }
+
+    private void scheduleSlowHint() {
+        handler.removeCallbacks(slowResponseHint);
+        slowHintPending = true;
+        handler.postDelayed(slowResponseHint, 25000L);
+    }
+
+    private void cancelSlowHint() {
+        if (slowHintPending) {
+            slowHintPending = false;
+            handler.removeCallbacks(slowResponseHint);
+        }
+    }
+
+    /** 初始化当前回答的思考卡片控件与展开交互。 */
+    private void setupReasoningViews(View row) {
+        aiReasoning = row.findViewById(R.id.msg_ai_reasoning);
+        aiReasoningHeader = row.findViewById(R.id.msg_ai_reasoning_header);
+        aiReasoningText = row.findViewById(R.id.msg_ai_reasoning_text);
+        aiReasoningSpinner = row.findViewById(R.id.msg_ai_reasoning_spinner);
+        aiReasoningChevron = row.findViewById(R.id.msg_ai_reasoning_chevron);
+        if (aiReasoning == null) {
+            return;
+        }
+        aiReasoning.setVisibility(View.GONE);
+        if (aiReasoningText != null) {
+            aiReasoningText.setVisibility(View.GONE);
+        }
+        if (aiReasoningChevron != null) {
+            aiReasoningChevron.setRotation(90);
+        }
+        // 点击监听直接持有本行的控件：回答完成后字段会被清空，
+        // 用字段实现展开会导致完成的卡片点不开。
+        final View headerRow = row.findViewById(R.id.msg_ai_reasoning_header_row);
+        final TextView bodyView = aiReasoningText;
+        final ImageView chevronView = aiReasoningChevron;
+        if (headerRow != null && bodyView != null) {
+            headerRow.setOnClickListener(v -> {
+                boolean expanded = bodyView.getVisibility() != View.VISIBLE;
+                bodyView.setVisibility(expanded ? View.VISIBLE : View.GONE);
+                if (expanded) {
+                    // 生成中用户可能收起过卡片，展开时补齐完整的思考内容。
+                    String full = reasoningDisplayText();
+                    if (!full.isEmpty()) {
+                        bodyView.setText(full);
+                    }
+                }
+                if (chevronView != null) {
+                    chevronView.setRotation(expanded ? 90 : 0);
+                }
+                headerRow.setContentDescription(getString(expanded
+                        ? R.string.thought_collapse : R.string.thought_expand));
+            });
+        }
+    }
+
+    /** 思考增量：先显示卡片，再按与正文相同的节流节奏刷新。 */
+    private void handleReasoningDelta(String delta) {
+        if (!chatSending || delta == null || delta.isEmpty()) {
+            return;
+        }
+        cancelSlowHint();
+        if (reasoningStartedAt == 0L) {
+            reasoningStartedAt = System.currentTimeMillis();
+        }
+        reasoningBuffer.append(delta);
+        if (!showThought || aiReasoning == null) {
+            return;
+        }
+        if (aiReasoning.getVisibility() != View.VISIBLE) {
+            aiReasoning.setVisibility(View.VISIBLE);
+            if (aiReasoningSpinner != null) {
+                aiReasoningSpinner.setVisibility(View.VISIBLE);
+                aiReasoningSpinner.startAnimation(
+                        AnimationUtils.loadAnimation(this, R.anim.rotate_loading));
+            }
+            updateReasoningHeader(true);
+            aiReasoningExpanded = true;
+            if (aiReasoningText != null) {
+                aiReasoningText.setVisibility(View.VISIBLE);
+                aiReasoningText.setText(reasoningDisplayText());
+                reasoningRenderedLength = reasoningBuffer.length();
+            }
+            if (aiReasoningChevron != null) {
+                aiReasoningChevron.setRotation(90);
+            }
+            removeLoadingRow();
+        }
+        if (!flushScheduled) {
+            flushScheduled = true;
+            // 16ms 约等于一帧：网络每到一个增量，下一帧就上屏，不做额外的 50ms 攒批。
+            handler.postDelayed(streamFlush, 16);
+        }
+    }
+
+    private String reasoningDisplayText() {
+        return reasoningText.isEmpty() ? reasoningBuffer.toString() : reasoningText;
+    }
+
+    private long reasoningElapsedSeconds() {
+        long started = reasoningStartedAt > 0L ? reasoningStartedAt : replyStartedAt;
+        if (started <= 0L) {
+            return 1L;
+        }
+        return Math.max(1L, (System.currentTimeMillis() - started) / 1000L);
+    }
+
+    private void updateReasoningHeader(boolean running) {
+        if (aiReasoningHeader == null) {
+            return;
+        }
+        if (running) {
+            aiReasoningHeader.setText(R.string.thought_thinking);
+            return;
+        }
+        long seconds = reasoningElapsedSeconds();
+        if (dsStyle) {
+            aiReasoningHeader.setText(getString(R.string.thought_done, seconds));
+        } else if (gptStyle) {
+            aiReasoningHeader.setText(getString(R.string.thought_done_gpt, seconds));
+        } else {
+            aiReasoningHeader.setText(getString(R.string.thought_done_claude, seconds));
+        }
+    }
+
+    private void setReasoningExpanded(boolean expanded) {
+        aiReasoningExpanded = expanded;
+        if (aiReasoningText != null) {
+            aiReasoningText.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            if (expanded) {
+                String full = reasoningDisplayText();
+                if (!full.isEmpty()) {
+                    aiReasoningText.setText(full);
+                    reasoningRenderedLength = full.length();
+                }
+            }
+        }
+        if (aiReasoningChevron != null) {
+            aiReasoningChevron.setRotation(expanded ? 90 : 0);
+        }
+        View headerRow = aiRow == null ? null
+                : aiRow.findViewById(R.id.msg_ai_reasoning_header_row);
+        if (headerRow != null) {
+            headerRow.setContentDescription(getString(expanded
+                    ? R.string.thought_collapse : R.string.thought_expand));
+        }
+    }
+
+    /**
+     * 生成结束：有思考内容时收成一个可展开的摘要（默认收起），保留用时；
+     * 用户关闭“显示思考过程”或模型没有返回思考时不显示卡片。
+     */
+    private void finishReasoning() {
+        reasoningText = reasoningBuffer.toString().trim();
+        if (aiReasoning == null) {
+            return;
+        }
+        if (!showThought || reasoningText.isEmpty()) {
+            aiReasoning.setVisibility(View.GONE);
+            return;
+        }
+        aiReasoning.setVisibility(View.VISIBLE);
+        if (aiReasoningSpinner != null) {
+            aiReasoningSpinner.clearAnimation();
+            aiReasoningSpinner.setVisibility(View.GONE);
+        }
+        // 即使生成中收起过卡片，也保证收起的内容是完整的思考文本。
+        if (aiReasoningText != null) {
+            aiReasoningText.setText(reasoningText);
+            reasoningRenderedLength = reasoningText.length();
+        }
+        updateReasoningHeader(false);
+        setReasoningExpanded(false);
+    }
+
+    /** 历史消息里的思考过程：没有当次用时，展示“已深度思考”，点击展开。 */
+    private void bindReasoningHistory(final View row, String reasoning) {
+        View card = row.findViewById(R.id.msg_ai_reasoning);
+        if (card == null) {
+            return;
+        }
+        final String thought = reasoning == null ? "" : reasoning.trim();
+        if (!showThought || thought.isEmpty()) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        TextView header = row.findViewById(R.id.msg_ai_reasoning_header);
+        final TextView body = row.findViewById(R.id.msg_ai_reasoning_text);
+        ImageView spinner = row.findViewById(R.id.msg_ai_reasoning_spinner);
+        final ImageView chevron = row.findViewById(R.id.msg_ai_reasoning_chevron);
+        if (header != null) {
+            if (dsStyle) {
+                header.setText(R.string.thought_history_ds);
+            } else {
+                header.setText(R.string.thought_history);
+            }
+        }
+        if (spinner != null) {
+            spinner.setVisibility(View.GONE);
+        }
+        if (body != null) {
+            body.setText(thought);
+            body.setVisibility(View.GONE);
+        }
+        if (chevron != null) {
+            chevron.setRotation(0);
+        }
+        card.setVisibility(View.VISIBLE);
+        final View headerRow = row.findViewById(R.id.msg_ai_reasoning_header_row);
+        if (headerRow != null) {
+            headerRow.setContentDescription(getString(R.string.thought_expand));
+            headerRow.setOnClickListener(v -> {
+                boolean expand = body != null && body.getVisibility() != View.VISIBLE;
+                if (body != null) {
+                    body.setVisibility(expand ? View.VISIBLE : View.GONE);
+                }
+                if (chevron != null) {
+                    chevron.setRotation(expand ? 90 : 0);
+                }
+                headerRow.setContentDescription(getString(expand
+                        ? R.string.thought_collapse : R.string.thought_expand));
+            });
+        }
+    }
+
     private void handleDelta(String delta) {
         if (!chatSending || delta == null || delta.isEmpty()) {
             return;
         }
+        cancelSlowHint();
         removeLoadingRow();
         streamBuffer.append(delta);
         if (!flushScheduled) {
             flushScheduled = true;
-            handler.postDelayed(streamFlush, 50);
+            // 一到就渲染，最多合并同一帧内的多个 token。
+            handler.postDelayed(streamFlush, 16);
         }
     }
 
     private void completeReply(String text) {
         handler.removeCallbacks(streamFlush);
+        cancelSlowHint();
         flushScheduled = false;
         removeLoadingRow();
         if (text == null || text.trim().isEmpty()) {
-            failReply("模型没有返回任何内容，请稍后重试。");
+            failReply(getString(R.string.error_empty_reply));
             return;
         }
         streamingText = text;
@@ -1890,70 +2520,339 @@ public class MainActivity extends AppCompatActivity {
         if (aiActions != null) {
             aiActions.setVisibility(View.VISIBLE);
         }
-        if (dsStyle && thinkOn && aiRow != null) {
-            TextView thought = aiRow.findViewById(R.id.msg_ai_thought);
-            if (thought != null) {
-                long seconds = Math.max(1L,
-                        (System.currentTimeMillis() - replyStartedAt) / 1000L);
-                thought.setText(getString(R.string.ds_thought, seconds));
-                thought.setVisibility(View.VISIBLE);
-            }
-        }
+        // 回答完成：思考过程收成“已深度思考（用时 N 秒）”，点击可展开。
+        finishReasoning();
+        final String thought = reasoningText;
         if (aiDisclaimer != null) {
             aiDisclaimer.setVisibility(gptStyle || dsStyle ? View.GONE : View.VISIBLE);
         }
-        long dbId = 0L;
-        if (!incognitoMode && currentConversationId > 0L) {
-            dbId = store.addMessage(currentConversationId, ChatStore.ROLE_ASSISTANT, text);
-        }
-        history.add(new Turn(ChatStore.ROLE_ASSISTANT, text, dbId));
-
+        // 连接提前断开时这条回答只是半成品，落库时一并标记，
+        // 重新打开会话仍会显示“继续生成”，不会当成完整回答。
+        final boolean incomplete = incompleteStream;
+        long dbId = finalizeDraft(text, thought, incomplete);
+        recordAssistantTurn(text, thought, dbId, incomplete);
+        final int turnIndex = history.size() - 1;
         chatSending = false;
-        aiRow = null;
-        aiBody = null;
-        aiActions = null;
-        aiDisclaimer = null;
-        aiTurnIndex = -1;
-        streamBuffer.setLength(0);
-        streamingText = "";
+        if (incomplete) {
+            // 连接提前断开但已经拿到内容：一条都不丢，只标记“可能不完整”，
+            // 用户可以点“继续生成”把剩下的补完。
+            attachFooter(aiRow, turnIndex, getString(R.string.partial_incomplete));
+            incompleteStream = false;
+        }
+        releaseStreamingState();
         restoreComposer();
         scrollChatToBottom();
     }
 
     private void failReply(String message) {
         handler.removeCallbacks(streamFlush);
+        cancelSlowHint();
         flushScheduled = false;
         removeLoadingRow();
-        if (streamBuffer.length() > 0) {
-            streamingText = streamBuffer.toString();
+        finishReasoning();
+        final String thought = reasoningText;
+        // 用客户端已推送的完整内容兜底：比界面缓冲区更全，停止/断网都不会丢字。
+        String partial = streamFullText();
+        if (partial.trim().isEmpty()) {
+            partial = streamingText;
         }
-        if (aiBody != null && !streamingText.trim().isEmpty()) {
-            aiBody.setText(streamingText);
+        final String reason = message == null ? getString(R.string.error_network_fallback) : message;
+        if (aiBody != null) {
+            aiBody.setText(partial);
+        }
+        if (!partial.trim().isEmpty()) {
             if (aiActions != null) {
                 aiActions.setVisibility(View.VISIBLE);
             }
-            long dbId = 0L;
-            if (!incognitoMode && currentConversationId > 0L) {
-                dbId = store.addMessage(currentConversationId, ChatStore.ROLE_ASSISTANT,
-                        streamingText);
+            if (aiDisclaimer != null) {
+                aiDisclaimer.setVisibility(gptStyle || dsStyle ? View.GONE : View.VISIBLE);
             }
-            history.add(new Turn(ChatStore.ROLE_ASSISTANT, streamingText, dbId));
-        } else if (aiRow != null && aiRow.getParent() == chatMessages) {
-            chatMessages.removeView(aiRow);
+            long dbId = finalizeDraft(partial, thought, true);
+            recordAssistantTurn(partial, thought, dbId, true);
+            attachFooter(aiRow, history.size() - 1, getString(R.string.partial_interrupted));
+            showErrorRow(getString(R.string.error_title),
+                    reason + "\n" + getString(R.string.error_partial_saved));
+        } else {
+            deleteDraftRow();
+            if (aiRow != null && aiRow.getParent() == chatMessages) {
+                chatMessages.removeView(aiRow);
+            }
+            showErrorRow(getString(R.string.error_title),
+                    reason + "\n" + getString(R.string.error_retry_hint));
         }
+        chatSending = false;
+        releaseStreamingState();
+        restoreComposer();
+        scrollChatToBottom();
+    }
+
+    /** 当前回答已经收到的全部文字（客户端侧为准，避免主线程队列里还没处理的增量丢失）。 */
+    private String streamFullText() {
+        if (client != null) {
+            String live = client.snapshotText();
+            if (!live.isEmpty()) {
+                return live;
+            }
+        }
+        return streamPrefix + streamBuffer;
+    }
+
+    /** 把已生成内容写进提前建好的助手消息行；force=false 时按 900ms 节流。 */
+    private void persistStreamDraft(boolean force) {
+        if (incognitoMode || currentConversationId <= 0L || draftDbId <= 0L || store == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (!force && now - lastDraftSaveAt < 900L) {
+            return;
+        }
+        lastDraftSaveAt = now;
+        String text = streamFullText();
+        String thought = reasoningBuffer.toString();
+        if (text.isEmpty() && thought.isEmpty()) {
+            return;
+        }
+        try {
+            // 生成中的草稿一律标记为未完成，进程被杀后重新打开也能续写。
+            store.updateMessage(draftDbId, text, thought, true);
+        } catch (Exception ignored) {
+            // 草稿保存失败不能影响正在进行的回答
+        }
+    }
+
+    /**
+     * 生成结束：把草稿行转成正式消息，返回数据库 id。
+     *
+     * @param partial true 表示这条回答没有正常写完（停止 / 断网 / 不完整），
+     *                重新打开会话时仍显示“继续生成”。
+     */
+    private long finalizeDraft(String text, String thought, boolean partial) {
+        long dbId = draftDbId;
+        if (!incognitoMode && currentConversationId > 0L && store != null) {
+            if (dbId > 0L) {
+                store.updateMessage(dbId, text, thought, partial);
+            } else {
+                dbId = store.addMessage(currentConversationId, ChatStore.ROLE_ASSISTANT,
+                        text, thought, partial);
+            }
+        }
+        draftDbId = 0L;
+        return dbId;
+    }
+
+    private void deleteDraftRow() {
+        if (draftDbId > 0L && !incognitoMode && store != null) {
+            store.deleteMessage(draftDbId);
+        }
+        draftDbId = 0L;
+    }
+
+    /** 写入历史：续写时替换原来那条半成品，普通生成时新增一条。 */
+    private void recordAssistantTurn(String text, String thought, long dbId, boolean partial) {
+        if (resumingReply && resumeTurnIndex >= 0 && resumeTurnIndex < history.size()) {
+            Turn old = history.get(resumeTurnIndex);
+            history.set(resumeTurnIndex, new Turn(ChatStore.ROLE_ASSISTANT, text,
+                    old.dbId > 0L ? old.dbId : dbId, null, thought, partial));
+        } else {
+            history.add(new Turn(ChatStore.ROLE_ASSISTANT, text, dbId, null, thought, partial));
+        }
+        resumingReply = false;
+        resumeTurnIndex = -1;
+    }
+
+    /** 一次生成结束后的公共收尾：只清临时状态，已落库/已显示的内容保持不动。 */
+    private void releaseStreamingState() {
         aiRow = null;
         aiBody = null;
         aiActions = null;
         aiDisclaimer = null;
+        aiReasoning = null;
+        aiReasoningHeader = null;
+        aiReasoningText = null;
+        aiReasoningSpinner = null;
+        aiReasoningChevron = null;
         aiTurnIndex = -1;
         streamBuffer.setLength(0);
+        reasoningBuffer.setLength(0);
         streamingText = "";
-        showErrorRow(getString(R.string.error_title),
-                (message == null ? "请求失败" : message)
-                        + "\n请检查 API Key、接口地址或网络后重试。");
-        chatSending = false;
-        restoreComposer();
+        reasoningText = "";
+        streamPrefix = "";
+        appendOnly = false;
+        resumingReply = false;
+        resumeTurnIndex = -1;
+        draftDbId = 0L;
+        flushScheduled = false;
+        incompleteStream = false;
+    }
+
+    /**
+     * 在半成品回答下方加一行“已中断 / 已停止 · 继续生成”，点一下从断点接着写。
+     */
+    private void attachFooter(View row, int index, String label) {
+        if (!(row instanceof ViewGroup)) {
+            return;
+        }
+        removeFooter(row);
+        TextView footer = buildFooter(row, index, label);
+        ((ViewGroup) row).addView(footer);
+        aiFooter = footer;
+    }
+
+    /**
+     * 读历史时给最后一条半成品加同样的提示行，但不接管当前流式回答的 footer 字段，
+     * 否则下一次生成会把这条历史提示误删。
+     */
+    private void attachHistoryFooter(View row, int index, String label) {
+        if (!(row instanceof ViewGroup)) {
+            return;
+        }
+        removeFooter(row);
+        ((ViewGroup) row).addView(buildFooter(row, index, label));
+    }
+
+    private TextView buildFooter(View row, int index, String label) {
+        final String action = getString(R.string.partial_continue);
+        SpannableString text = new SpannableString(label + "  " + action);
+        int start = text.length() - action.length();
+        text.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, footerAccentColor())),
+                start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new UnderlineSpan(), start, text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        TextView footer = new TextView(this);
+        footer.setId(R.id.msg_ai_footer);
+        footer.setText(text);
+        footer.setTextSize(12.5f);
+        footer.setIncludeFontPadding(false);
+        footer.setPadding(0, dp(10), 0, dp(2));
+        footer.setTextColor(ContextCompat.getColor(this, footerTextColor()));
+        footer.setClickable(true);
+        footer.setFocusable(true);
+        footer.setContentDescription(label + "，" + getString(R.string.partial_continue_hint));
+        footer.setOnClickListener(v -> resumePartial(row, index));
+        return footer;
+    }
+
+    private int footerTextColor() {
+        return dsStyle ? R.color.ds_text_tertiary
+                : (gptStyle ? R.color.gpt_text_tertiary : R.color.text_tertiary);
+    }
+
+    private int footerAccentColor() {
+        return dsStyle ? R.color.ds_brand : (gptStyle ? R.color.gpt_blue : R.color.orange);
+    }
+
+    private void removeFooter() {
+        if (aiFooter != null) {
+            removeFooter((View) aiFooter.getParent());
+        }
+        aiFooter = null;
+    }
+
+    private void removeFooter(View row) {
+        if (!(row instanceof ViewGroup)) {
+            return;
+        }
+        View footer = row.findViewById(R.id.msg_ai_footer);
+        if (footer != null) {
+            ((ViewGroup) row).removeView(footer);
+        }
+        if (footer != null && footer == aiFooter) {
+            aiFooter = null;
+        }
+    }
+
+    private View findRowForTurn(int index) {
+        if (chatMessages == null) {
+            return null;
+        }
+        for (int i = chatMessages.getChildCount() - 1; i >= 0; i--) {
+            View child = chatMessages.getChildAt(i);
+            Object tag = child.getTag();
+            if (tag instanceof Integer && ((Integer) tag) == index) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    private void bindStreamingRow(View row) {
+        aiRow = row;
+        aiBody = row.findViewById(R.id.msg_ai_text);
+        aiActions = row.findViewById(R.id.msg_ai_actions);
+        aiDisclaimer = row.findViewById(R.id.msg_ai_disclaimer);
+        setupReasoningViews(row);
+    }
+
+    /**
+     * 用户点“继续生成”：在已生成内容后面接着写，不清空、不新建消息。
+     * 请求里会把当前这段回答作为 assistant 消息发回去，并附一句“接着写”。
+     */
+    private void resumePartial(View row, int index) {
+        if (chatSending || row == null || history.isEmpty()) {
+            return;
+        }
+        if (index != history.size() - 1) {
+            Toast.makeText(this, R.string.partial_only_last, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (index < 0 || index >= history.size()) {
+            return;
+        }
+        final Turn turn = history.get(index);
+        if (!ChatStore.ROLE_ASSISTANT.equals(turn.role) || turn.text.trim().isEmpty()) {
+            return;
+        }
+        removeErrorRow();
+        removeFooter(row);
+        bindStreamingRow(row);
+        if (aiBody != null) {
+            aiBody.setText(turn.text);
+        }
+        if (aiActions != null) {
+            aiActions.setVisibility(View.GONE);
+        }
+        if (aiDisclaimer != null) {
+            aiDisclaimer.setVisibility(View.GONE);
+        }
+        aiTurnIndex = index;
+        chatSending = true;
+        scheduleSlowHint();
+        streamGeneration++;
+        resumingReply = true;
+        resumeTurnIndex = index;
+        streamPrefix = turn.text;
+        appendOnly = true;
+        incompleteStream = false;
+        nonStreamNotified = false;
+        streamBuffer.setLength(0);
+        streamRenderedLength = 0;
+        flushScheduled = false;
+        reasoningBuffer.setLength(0);
+        if (showThought && !turn.reasoning.isEmpty()) {
+            reasoningBuffer.append(turn.reasoning);
+        }
+        reasoningRenderedLength = reasoningBuffer.length();
+        reasoningStartedAt = 0L;
+        draftDbId = turn.dbId;
+        lastDraftSaveAt = System.currentTimeMillis();
+        if (aiReasoning != null && showThought && reasoningBuffer.length() > 0) {
+            aiReasoning.setVisibility(View.VISIBLE);
+            if (aiReasoningText != null) {
+                aiReasoningText.setText(reasoningBuffer.toString());
+                aiReasoningText.setVisibility(View.VISIBLE);
+            }
+            if (aiReasoningSpinner != null) {
+                aiReasoningSpinner.setVisibility(View.VISIBLE);
+                aiReasoningSpinner.startAnimation(
+                        AnimationUtils.loadAnimation(this, R.anim.rotate_loading));
+            }
+            updateReasoningHeader(true);
+        }
+        aiReasoningExpanded = true;
+        setComposerSendingState();
+        showLoadingDot();
         scrollChatToBottom();
+        requestReply(turn.text);
     }
 
     private void showErrorRow(String title, String description) {
@@ -1963,7 +2862,15 @@ public class MainActivity extends AppCompatActivity {
                 chatMessages, false);
         ((TextView) row.findViewById(R.id.msg_error_title)).setText(title);
         ((TextView) row.findViewById(R.id.msg_error_desc)).setText(description);
-        row.findViewById(R.id.msg_error_retry).setOnClickListener(v -> {
+        TextView retry = row.findViewById(R.id.msg_error_retry);
+        boolean canContinue = !history.isEmpty()
+                && ChatStore.ROLE_ASSISTANT.equals(history.get(history.size() - 1).role)
+                && history.get(history.size() - 1).partial;
+        if (canContinue) {
+            // 已经保留了半成品时，这个按钮是“接着写”，不会删掉任何已生成内容。
+            retry.setText(R.string.partial_continue);
+        }
+        retry.setOnClickListener(v -> {
             removeErrorRow();
             retryLast();
         });
@@ -1982,6 +2889,19 @@ public class MainActivity extends AppCompatActivity {
     private void retryLast() {
         if (chatSending) {
             return;
+        }
+        if (!history.isEmpty()) {
+            Turn last = history.get(history.size() - 1);
+            if (ChatStore.ROLE_ASSISTANT.equals(last.role) && last.partial) {
+                // 已经生成了一部分：接着写，绝不会把这段内容删掉重来。
+                int index = history.size() - 1;
+                View row = findRowForTurn(index);
+                if (row != null) {
+                    resumePartial(row, index);
+                }
+                // 找不到对应气泡时宁可不操作，也不删掉已经生成的内容。
+                return;
+            }
         }
         if (!history.isEmpty()
                 && ChatStore.ROLE_ASSISTANT.equals(history.get(history.size() - 1).role)) {
@@ -2109,35 +3029,36 @@ public class MainActivity extends AppCompatActivity {
             client.cancel();
         }
         handler.removeCallbacks(streamFlush);
+        cancelSlowHint();
         flushScheduled = false;
         removeLoadingRow();
-        if (streamBuffer.length() > 0) {
-            streamingText = streamBuffer.toString();
+        finishReasoning();
+        final String thought = reasoningText;
+        // 用客户端已推送的内容收尾：用户点停止时，最后一个 token 也不会丢。
+        String partial = streamFullText();
+        if (partial.trim().isEmpty()) {
+            partial = streamingText;
         }
-        if (aiBody != null && !streamingText.trim().isEmpty()) {
-            aiBody.setText(streamingText);
+        if (aiBody != null) {
+            aiBody.setText(partial);
+        }
+        if (!partial.trim().isEmpty()) {
             if (aiActions != null) {
                 aiActions.setVisibility(View.VISIBLE);
             }
             if (aiDisclaimer != null) {
                 aiDisclaimer.setVisibility(gptStyle || dsStyle ? View.GONE : View.VISIBLE);
             }
-            long dbId = 0L;
-            if (!incognitoMode && currentConversationId > 0L) {
-                dbId = store.addMessage(currentConversationId, ChatStore.ROLE_ASSISTANT,
-                        streamingText);
+            long dbId = finalizeDraft(partial, thought, true);
+            recordAssistantTurn(partial, thought, dbId, true);
+            attachFooter(aiRow, history.size() - 1, getString(R.string.partial_stopped));
+        } else {
+            deleteDraftRow();
+            if (aiRow != null && aiRow.getParent() == chatMessages) {
+                chatMessages.removeView(aiRow);
             }
-            history.add(new Turn(ChatStore.ROLE_ASSISTANT, streamingText, dbId));
-        } else if (aiRow != null && aiRow.getParent() == chatMessages) {
-            chatMessages.removeView(aiRow);
         }
-        aiRow = null;
-        aiBody = null;
-        aiActions = null;
-        aiDisclaimer = null;
-        aiTurnIndex = -1;
-        streamBuffer.setLength(0);
-        streamingText = "";
+        releaseStreamingState();
         restoreComposer();
         scrollChatToBottom();
     }
@@ -2193,7 +3114,7 @@ public class MainActivity extends AppCompatActivity {
         return row;
     }
 
-    private View addAiMessage(String reply, int historyIndex) {
+    private View addAiMessage(String reply, int historyIndex, String reasoning) {
         View row = LayoutInflater.from(this).inflate(styleLayout(R.layout.item_msg_ai,
                 R.layout.item_msg_ai_gpt, R.layout.item_msg_ai_ds), chatMessages, false);
         TextView body = row.findViewById(R.id.msg_ai_text);
@@ -2204,6 +3125,7 @@ public class MainActivity extends AppCompatActivity {
         if (gptStyle || dsStyle) {
             applyAiRowStyle(row);
         }
+        bindReasoningHistory(row, reasoning);
         bindAiActions(row, body);
         row.setTag(historyIndex);
         chatMessages.addView(row);
@@ -2812,6 +3734,8 @@ public class MainActivity extends AppCompatActivity {
         voiceView.setVisibility(View.VISIBLE);
 
         handler.removeCallbacks(connectionFailure);
+        voiceListening = false;
+        updateVoiceStatus();
         if (gptStyle) {
             startVoiceOrb();
         }
@@ -3614,6 +4538,15 @@ public class MainActivity extends AppCompatActivity {
             item.setOnClickListener(v -> applyFullModel(name));
         }
         updateFullChecks();
+
+        // 模型面板的“思考强度”行：点开可选择关闭 / 低 / 中 / 高，
+        // Claude 风格没有独立胶囊，这里就是它的思考开关入口。
+        View thinkRow = sheet.findViewById(R.id.full_think_row);
+        final TextView thinkValue = sheet.findViewById(R.id.full_think_value);
+        updateThinkLevelLabel(thinkValue);
+        if (thinkRow != null) {
+            thinkRow.setOnClickListener(v -> showThinkLevelDialog(thinkValue));
+        }
     }
 
     private void bindCompactSheet(View sheet) {
@@ -3638,7 +4571,17 @@ public class MainActivity extends AppCompatActivity {
         toggle.setOnClickListener(v -> {
             extendOn = !extendOn;
             prefs.setExtendOn(extendOn);
+            if (extendOn) {
+                // “始终使用深度推理”开启后同时把强度设为高，避免显示与实际请求不一致。
+                thinkLevel = Prefs.THINK_LEVEL_HIGH;
+                prefs.setThinkLevel(thinkLevel);
+            }
             updateToggle(toggle, thumb, extendOn, dp(3));
+            // “扩展：始终使用深度推理”是真实全局开关：开启后即使胶囊关闭也会思考。
+            applyDsPills();
+            refreshThinkLevelViews();
+            Toast.makeText(this, extendOn ? R.string.think_enabled_tip
+                    : R.string.think_disabled_tip, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -3768,6 +4711,50 @@ public class MainActivity extends AppCompatActivity {
             prefs.setHapticOn(hapticOn);
             updateToggle(hapticTrack, hapticThumb, hapticOn, dp(3));
         });
+
+        // 思考开关 / 强度 / 是否展示思考过程：三套皮肤的设置页共用同一份状态。
+        final View thinkTrack = sheet.findViewById(R.id.settings_toggle_think);
+        final View thinkThumb = sheet.findViewById(R.id.settings_thumb_think);
+        final TextView thinkLevelValue = sheet.findViewById(R.id.settings_think_level_value);
+        if (thinkTrack != null && thinkThumb != null) {
+            updateToggle(thinkTrack, thinkThumb, effectiveThinking(), dp(3));
+            thinkTrack.setOnClickListener(v -> {
+                setThinkEnabled(!effectiveThinking(), true);
+                updateToggle(thinkTrack, thinkThumb, effectiveThinking(), dp(3));
+                updateThinkLevelLabel(thinkLevelValue);
+            });
+        }
+        View thinkLevelRow = sheet.findViewById(R.id.settings_think_level);
+        if (thinkLevelRow != null) {
+            thinkLevelRow.setOnClickListener(v -> showThinkLevelDialog(thinkLevelValue));
+        }
+        updateThinkLevelLabel(thinkLevelValue);
+
+        final View thoughtTrack = sheet.findViewById(R.id.settings_toggle_thought);
+        final View thoughtThumb = sheet.findViewById(R.id.settings_thumb_thought);
+        if (thoughtTrack != null && thoughtThumb != null) {
+            updateToggle(thoughtTrack, thoughtThumb, showThought, dp(3));
+            thoughtTrack.setOnClickListener(v -> {
+                showThought = !showThought;
+                prefs.setShowThought(showThought);
+                updateToggle(thoughtTrack, thoughtThumb, showThought, dp(3));
+                // 关闭时立即收起当前正在展示的思考卡片。
+                if (!showThought && aiReasoning != null) {
+                    aiReasoning.setVisibility(View.GONE);
+                    if (aiReasoningSpinner != null) {
+                        aiReasoningSpinner.clearAnimation();
+                    }
+                }
+                // 历史消息里的思考卡片随开关即时显示 / 隐藏。
+                if (chatMessages != null && !chatSending) {
+                    renderHistory();
+                    scrollChatToBottom();
+                }
+                Toast.makeText(this, showThought
+                        ? R.string.thought_show_on : R.string.thought_show_off,
+                        Toast.LENGTH_SHORT).show();
+            });
+        }
 
         // 桌面图标入口：先保存当前 API 配置，再切到图标面板（面板会复用同一个底部容器）
         View iconRow = sheet.findViewById(R.id.settings_icon);
@@ -4564,7 +5551,7 @@ public class MainActivity extends AppCompatActivity {
     private void applyFullModel(String name) {
         fullSelected = name;
         prefs.setFullModel(name);
-        String label = displayModelName(name, false) + " 高";
+        String label = displayModelName(name, false) + " " + thinkLevelLabel();
         homeModelView.setText(label);
         incognitoModelView.setText(label);
         if (chatModelView != null) {
@@ -4691,7 +5678,7 @@ public class MainActivity extends AppCompatActivity {
             think.setOnClickListener(v -> {
                 toggleThink(false);
                 updateGptThinkRow(sheet);
-                Toast.makeText(this, thinkOn ? R.string.gpt_think_tip_on
+                Toast.makeText(this, effectiveThinking() ? R.string.gpt_think_tip_on
                         : R.string.gpt_think_tip_off, Toast.LENGTH_SHORT).show();
             });
         }
@@ -4699,11 +5686,12 @@ public class MainActivity extends AppCompatActivity {
 
     /** “深入思考”选中后把图标与文字染成品牌蓝，并显示右侧勾选。 */
     private void updateGptThinkRow(View sheet) {
+        boolean thinking = effectiveThinking();
         int color = ContextCompat.getColor(this,
-                thinkOn ? R.color.gpt_blue : R.color.gpt_text);
+                thinking ? R.color.gpt_blue : R.color.gpt_text);
         View check = sheet.findViewById(R.id.attach_think_check);
         if (check != null) {
-            check.setVisibility(thinkOn ? View.VISIBLE : View.GONE);
+            check.setVisibility(thinking ? View.VISIBLE : View.GONE);
         }
         ImageView icon = sheet.findViewById(R.id.attach_think_icon);
         if (icon != null) {
@@ -4757,11 +5745,12 @@ public class MainActivity extends AppCompatActivity {
         TextView thinkText = sheet.findViewById(R.id.attach_ds_think_text);
         ImageView searchIcon = sheet.findViewById(R.id.attach_ds_search_icon);
         TextView searchText = sheet.findViewById(R.id.attach_ds_search_text);
+        boolean thinking = effectiveThinking();
         if (thinkIcon != null) {
-            thinkIcon.setColorFilter(thinkOn ? accent : normalIcon);
+            thinkIcon.setColorFilter(thinking ? accent : normalIcon);
         }
         if (thinkText != null) {
-            thinkText.setTextColor(thinkOn ? accent : normalText);
+            thinkText.setTextColor(thinking ? accent : normalText);
         }
         if (searchIcon != null) {
             searchIcon.setColorFilter(webSearchOn ? accent : normalIcon);
@@ -4770,7 +5759,7 @@ public class MainActivity extends AppCompatActivity {
             searchText.setTextColor(webSearchOn ? accent : normalText);
         }
         applyAttachSwitch(sheet.findViewById(R.id.attach_ds_think_track),
-                sheet.findViewById(R.id.attach_ds_think_thumb), thinkOn);
+                sheet.findViewById(R.id.attach_ds_think_thumb), thinking);
         applyAttachSwitch(sheet.findViewById(R.id.attach_ds_search_track),
                 sheet.findViewById(R.id.attach_ds_search_thumb), webSearchOn);
     }
@@ -5928,7 +6917,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        // 退到后台先把已生成的部分落盘：之后即使进程被系统回收也不会丢。
+        if (chatSending) {
+            persistStreamDraft(true);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
+        if (chatSending) {
+            // 页面被销毁（进程回收前）同样先保存再取消，保证半成品还在。
+            chatSending = false;
+            if (client != null) {
+                client.cancel();
+            }
+            persistStreamDraft(true);
+        }
         handler.removeCallbacksAndMessages(null);
         if (client != null) {
             client.cancel();

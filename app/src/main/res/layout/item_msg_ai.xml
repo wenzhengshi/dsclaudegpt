@@ -5,6 +5,73 @@
     android:orientation="vertical"
     android:paddingTop="20dp">
 
+    <!-- 思考过程：思考中实时展开，回答完成后收起，点标题栏可重新展开 -->
+    <LinearLayout
+        android:id="@+id/msg_ai_reasoning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_thought_card"
+        android:orientation="vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/msg_ai_reasoning_header_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:minHeight="28dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/msg_ai_reasoning_spinner"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_ring_loading"
+                android:tint="@color/text_tertiary" />
+
+            <TextView
+                android:id="@+id/msg_ai_reasoning_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:includeFontPadding="false"
+                android:textColor="@color/text_secondary"
+                android:textSize="12.5sp" />
+
+            <ImageView
+                android:id="@+id/msg_ai_reasoning_chevron"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="6dp"
+                android:contentDescription="@null"
+                android:rotation="90"
+                android:src="@drawable/ic_chevron_right"
+                android:tint="@color/text_tertiary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/msg_ai_reasoning_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/text_secondary"
+            android:textIsSelectable="true"
+            android:textSize="13.5sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/msg_ai_text"
         android:layout_width="match_parent"

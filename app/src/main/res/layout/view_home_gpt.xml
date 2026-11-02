@@ -24,6 +24,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--
+      空对话首页：标题栏与输入框之间给一句轻量问候，
+      避免整页只剩白色背景、第一眼看起来像白屏。
+      切到“工作”标签时隐藏，让位给下方的工作建议列表。
+    -->
+    <LinearLayout
+        android:id="@+id/gpt_home_empty"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@id/home_composer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gpt_home_nav"
+        app:layout_constraintVertical_bias="0.38">
+
+        <TextView
+            android:id="@+id/gpt_home_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/gpt_empty_title"
+            android:textColor="@color/gpt_text"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/gpt_home_empty_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/gpt_empty_sub"
+            android:textColor="@color/gpt_text_tertiary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
     <!-- 工作页：任务建议入口，在标题栏与输入框之间上下居中，内容超高时可滚动 -->
     <ScrollView
         android:id="@+id/gpt_empty_work"

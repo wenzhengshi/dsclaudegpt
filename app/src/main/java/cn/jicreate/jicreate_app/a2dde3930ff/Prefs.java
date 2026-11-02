@@ -176,14 +176,52 @@ public final class Prefs {
     }
 
     // ------------------------------------------------------------------
-    // DeepSeek 风格的两个功能开关
+    // 思考（reasoning）相关配置：三套皮肤共用同一份开关与强度。
+    // 开关会真正作为请求参数发送，而不是只改系统提示词。
     // ------------------------------------------------------------------
+    public static final int THINK_LEVEL_LOW = 0;
+    public static final int THINK_LEVEL_MEDIUM = 1;
+    public static final int THINK_LEVEL_HIGH = 2;
+
     public boolean thinkOn() {
         return sp.getBoolean("ds_think_on", false);
     }
 
     public void setThinkOn(boolean value) {
         sp.edit().putBoolean("ds_think_on", value).apply();
+    }
+
+    /** 思考强度：低 / 中 / 高，默认高，与界面上的“高”保持一致。 */
+    public int thinkLevel() {
+        int value = sp.getInt("think_level", THINK_LEVEL_HIGH);
+        return value == THINK_LEVEL_LOW || value == THINK_LEVEL_MEDIUM
+                ? value : THINK_LEVEL_HIGH;
+    }
+
+    public void setThinkLevel(int value) {
+        int level = value == THINK_LEVEL_LOW || value == THINK_LEVEL_MEDIUM
+                ? value : THINK_LEVEL_HIGH;
+        sp.edit().putInt("think_level", level).apply();
+    }
+
+    /** 发送给 OpenAI 兼容接口的 reasoning_effort 取值。 */
+    public static String thinkLevelApiValue(int level) {
+        if (level == THINK_LEVEL_LOW) {
+            return "low";
+        }
+        if (level == THINK_LEVEL_MEDIUM) {
+            return "medium";
+        }
+        return "high";
+    }
+
+    /** 是否在回答上方展示思考过程（默认展示）。 */
+    public boolean showThought() {
+        return sp.getBoolean("show_thought", true);
+    }
+
+    public void setShowThought(boolean value) {
+        sp.edit().putBoolean("show_thought", value).apply();
     }
 
     public boolean searchOn() {

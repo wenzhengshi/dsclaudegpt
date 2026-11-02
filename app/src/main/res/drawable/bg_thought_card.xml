@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Claude 风格思考卡片：暖灰底、12dp 圆角，与浅米色页面协调 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F4F3EE" />
+    <corners android:radius="12dp" />
+</shape>

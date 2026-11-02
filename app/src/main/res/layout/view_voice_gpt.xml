@@ -84,6 +84,28 @@
                 android:focusable="true" />
         </FrameLayout>
 
+        <!--
+          语音状态：球体下方给一句可读的状态文字，
+          让用户知道现在是在等待说话还是正在聆听，而不是只有一颗会动的球。
+        -->
+        <TextView
+            android:id="@+id/voice_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="32dp"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/gpt_voice_status_idle"
+            android:textColor="@color/gpt_text_secondary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/voice_orb_wrap" />
+
         <LinearLayout
             android:id="@+id/voice_error_card"
             android:layout_width="0dp"

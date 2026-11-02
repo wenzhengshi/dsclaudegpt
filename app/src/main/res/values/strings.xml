@@ -124,6 +124,22 @@
     <string name="api_test_ok">连接成功，可以开始对话了。</string>
     <string name="api_test_fail">连接失败</string>
     <string name="api_switch_model">当前模型不可用，已自动切换为 %1$s</string>
+    <string name="stream_not_supported">当前接口返回的是整段结果，没有使用 SSE 流式输出；已改为一次性展示。请检查接口地址或模型是否支持流式。</string>
+    <!-- 断线续写 / 半成品保护 -->
+    <string name="stream_retrying">连接不稳定，正在自动重试（第 %1$d 次）…</string>
+    <string name="stream_resuming">连接中断，已保留已生成的内容，正在自动续写…</string>
+    <string name="stream_slow_hint">正在等待模型响应，网络较慢时也会自动重试与续写，请稍候…</string>
+    <string name="partial_stopped">已停止生成，以上内容已保留</string>
+    <string name="partial_interrupted">连接中断，以上内容已保留</string>
+    <string name="partial_incomplete">回答可能没有输出完整，以上内容已保留</string>
+    <string name="partial_continue">继续生成</string>
+    <string name="partial_continue_hint">从断点接着写完剩余内容，不会重复已经输出的部分</string>
+    <string name="partial_only_last">只能继续最后一轮回答</string>
+    <string name="error_partial_saved">已生成的内容已保存，点“继续生成”可以从断点接着写完。</string>
+    <string name="error_retry_hint">请检查 API Key、接口地址或网络后重试。</string>
+    <string name="error_network_fallback">请求失败</string>
+    <string name="error_empty_reply">模型没有返回任何内容，请稍后重试。</string>
+    <string name="reasoning_only_shown">当前模型只返回了思考内容，已直接作为回答展示，可继续提问或重试。</string>
     <string name="api_local_note">API Key 与全部聊天记录只保存在本机；请求会直接从手机发往你填写的接口地址，不经过任何中转服务器。</string>
     <string name="api_hint_home">尚未配置 API Key · 点此设置</string>
     <string name="api_required_title">还没有配置 API Key</string>
@@ -305,6 +321,32 @@
     <string name="ds_search_tip_on">已开启智能搜索，回答会结合最新信息</string>
     <string name="ds_search_tip_off">已关闭智能搜索</string>
     <string name="ds_thought">已思考（用时 %1$d 秒）</string>
+
+    <!-- 思考开关：设置页、模型面板与回答上方的思考过程展示共用 -->
+    <string name="set_think_title">深度思考</string>
+    <string name="set_think_desc">回答前先推理，并展示思考过程</string>
+    <string name="set_think_level">思考强度</string>
+    <string name="set_think_show">显示思考过程</string>
+    <string name="set_think_show_desc">在回答上方保留可展开的思考内容</string>
+    <string name="think_level_off">已关闭</string>
+    <string name="think_level_low">低</string>
+    <string name="think_level_medium">中</string>
+    <string name="think_level_high">高</string>
+    <string name="think_level_dialog_title">思考强度</string>
+    <string name="think_level_changed">思考强度已设为「%1$s」</string>
+    <string name="think_enabled_tip">已开启深度思考：回答前会先推理并展示思考过程</string>
+    <string name="think_disabled_tip">已关闭深度思考</string>
+    <string name="thought_thinking">思考中…</string>
+    <string name="thought_done">已深度思考（用时 %1$d 秒）</string>
+    <string name="thought_done_gpt">已思考 %1$d 秒</string>
+    <string name="thought_done_claude">已思考（用时 %1$d 秒）</string>
+    <string name="thought_expand">展开思考过程</string>
+    <string name="thought_collapse">收起思考过程</string>
+    <string name="thought_tap_hint">点击可展开或收起思考过程</string>
+    <string name="thought_show_on">回答上方会展示思考过程</string>
+    <string name="thought_show_off">已隐藏思考过程</string>
+    <string name="thought_history">已思考</string>
+    <string name="thought_history_ds">已深度思考</string>
     <string name="ds_voice_title">按住说话</string>
     <string name="ds_voice_hint">松开发送，上滑取消</string>
     <string name="ds_voice_listening">正在聆听…</string>
@@ -344,4 +386,8 @@
     <string name="cd_gpt_home_menu">打开菜单</string>
     <string name="cd_gpt_home_messages">查看消息</string>
     <string name="cd_gpt_home_tabs">切换聊天与工作</string>
-</resources>
+    <string name="gpt_empty_title">有什么可以帮忙的？</string>
+    <string name="gpt_empty_sub">问点什么，或切换到「工作」试试</string>
+    <string name="gpt_voice_status_idle">轻点球体开始说话</string>
+    <string name="gpt_voice_status_listening">正在聆听…</string>
+    </resources>
